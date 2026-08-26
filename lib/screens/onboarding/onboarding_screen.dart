@@ -5,13 +5,16 @@ import '../../providers/settings_provider.dart';
 import '../../widgets/entry_reveal.dart';
 import '../main_layout.dart';
 
-class OnboardingScreen extends StatelessWidget {
+class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
 
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
@@ -80,84 +83,10 @@ class OnboardingScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 36),
 
-                  // Get Started Pill Action Button Matching Reference UI
-                  EntryReveal(
-                    duration: const Duration(milliseconds: 700),
-                    child: GestureDetector(
-                      onTap: () async {
-                        await settingsProvider.setOnboardingCompleted(true);
-                        if (context.mounted) {
-                          Navigator.of(context).pushReplacement(
-                            PageRouteBuilder(
-                              pageBuilder: (context, animation, secondaryAnimation) => const MainLayout(),
-                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                return FadeTransition(opacity: animation, child: child);
-                              },
-                              transitionDuration: const Duration(milliseconds: 400),
-                            ),
-                          );
-                        }
-                      },
-                      child: Container(
-                        height: 60,
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryAccent,
-                          borderRadius: BorderRadius.circular(32),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primaryAccent.withValues(alpha: 0.4),
-                              blurRadius: 16,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Arrow Icon Circle
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: const BoxDecoration(
-                                color: AppColors.primaryDark,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.arrow_forward_rounded,
-                                color: AppColors.primaryAccent,
-                                size: 24,
-                              ),
-                            ),
-
-                            // Button Text
-                            const Text(
-                              'Get Started',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primaryDark,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-
-                            // Right Subtle Arrow Indicator
-                            Padding(
-                              padding: const EdgeInsets.only(right: 16),
-                              child: Text(
-                                '>>>',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primaryDark.withValues(alpha: 0.5),
-                                  letterSpacing: 1.0,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  // Interactive Slide-to-Start Action Button
+                  const EntryReveal(
+                    duration: Duration(milliseconds: 700),
+                    child: _SlideToStartButton(),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -166,6 +95,155 @@ class OnboardingScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SlideToStartButton extends StatefulWidget {
+  const _SlideToStartButton();
+
+  @override
+  State<_SlideToStartButton> createState() => _SlideToStartButtonState();
+}
+
+class _SlideToStartButtonState extends State<_SlideToStartButton> {
+  double _dragPosition = 0.0;
+  bool _isCompleted = false;
+
+  void _triggerCompletion() async {
+    if (_isCompleted) return;
+    setState(() => _isCompleted = true);
+
+    final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+    await settingsProvider.setOnboardingCompleted(true);
+
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const MainLayout(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 400),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const double buttonHeight = 64.0;
+    const double knobSize = 52.0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double maxDrag = constraints.maxWidth - knobSize - 12.0;
+
+        return GestureDetector(
+          onTap: () {
+            // Tap to complete
+            setState(() => _dragPosition = maxDrag);
+            _triggerCompletion();
+          },
+          onHorizontalDragUpdate: (details) {
+            if (_isCompleted) return;
+            setState(() {
+              _dragPosition += details.delta.dx;
+              if (_dragPosition < 0) _dragPosition = 0;
+              if (_dragPosition > maxDrag) _dragPosition = maxDrag;
+            });
+          },
+          onHorizontalDragEnd: (details) {
+            if (_isCompleted) return;
+            if (_dragPosition > maxDrag * 0.6) {
+              setState(() => _dragPosition = maxDrag);
+              _triggerCompletion();
+            } else {
+              // Reset drag knob to 0
+              setState(() => _dragPosition = 0.0);
+            }
+          },
+          child: Container(
+            height: buttonHeight,
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            decoration: BoxDecoration(
+              color: AppColors.primaryAccent,
+              borderRadius: BorderRadius.circular(36),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primaryAccent.withValues(alpha: 0.4),
+                  blurRadius: 18,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Center Label Text with Opacity Fade as Knob Approaches Right
+                Opacity(
+                  opacity: (1.0 - (_dragPosition / maxDrag)).clamp(0.0, 1.0),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(width: 40),
+                      Text(
+                        'Slide to Get Started',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryDark,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        '>>>',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryDark,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Draggable Arrow Circle Knob
+                AnimatedPositioned(
+                  duration: _dragPosition == 0.0 || _dragPosition == maxDrag
+                      ? const Duration(milliseconds: 250)
+                      : Duration.zero,
+                  curve: Curves.easeOut,
+                  left: 6 + _dragPosition,
+                  child: Container(
+                    width: knobSize,
+                    height: knobSize,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primaryDark,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 6,
+                          offset: Offset(2, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: AppColors.primaryAccent,
+                      size: 26,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

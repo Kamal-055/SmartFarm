@@ -27,6 +27,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isPasswordVisible = false;
   String _selectedLanguageCode = 'en';
 
+  void _autoFillTestData() {
+    setState(() {
+      _nameController.text = 'Green Valley Farmer';
+      _emailController.text = 'farmer@smartfodder.com';
+      _passwordController.text = 'password123';
+      _farmNameController.text = 'Green Valley Farm';
+      _cattleCountController.text = '25';
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            Icon(Icons.bolt, color: Colors.amber, size: 20),
+            SizedBox(width: 8),
+            Text('Development Test Data Auto-Filled!'),
+          ],
+        ),
+        backgroundColor: AppColors.primaryDark,
+        duration: const Duration(seconds: 1),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -102,21 +127,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
-                        onPressed: () => Navigator.pop(context),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          const SizedBox(width: 4),
+                          const Text(
+                            'Create Account',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 4),
-                      const Expanded(
-                        child: Text(
-                          'Create Farm Account',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+
+                      // Quick Auto-Fill Test Data Chip Button
+                      GestureDetector(
+                        onTap: _autoFillTestData,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.warningBackground,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.warning),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.warning.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              )
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.bolt, color: AppColors.warning, size: 16),
+                              SizedBox(width: 4),
+                              Text(
+                                'Auto-Fill',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.warning,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -148,13 +209,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Register Your Farm',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Register Your Farm',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                IconButton(
+                                  tooltip: 'Quick Fill Test Form',
+                                  icon: const Icon(Icons.flash_on, color: AppColors.primaryAccent),
+                                  onPressed: _autoFillTestData,
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 2),
                             Text(

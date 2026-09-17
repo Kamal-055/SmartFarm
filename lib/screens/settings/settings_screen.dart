@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/farm_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../ai_models/ai_feed_prediction_screen.dart';
 import '../auth/login_screen.dart';
 import '../sensors/live_sensors_screen.dart';
 import 'system_overview_screen.dart';
@@ -24,7 +25,7 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('System Profile & Settings'),
+        title: const Text('Farm Profile & Preferences'),
       ),
       body: Stack(
         children: [
@@ -61,7 +62,7 @@ class SettingsScreen extends StatelessWidget {
                         CircleAvatar(
                           radius: 28,
                           backgroundColor: AppColors.primaryAccent.withValues(alpha: 0.2),
-                          child: const Icon(Icons.person, color: AppColors.primaryAccent, size: 32),
+                          child: const Icon(Icons.agriculture_rounded, color: AppColors.primaryAccent, size: 32),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -76,17 +77,33 @@ class SettingsScreen extends StatelessWidget {
                                 farmerEmail,
                                 style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.7)),
                               ),
-                              const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryAccent.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  'FARM: $farmName',
-                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryAccent),
-                                ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryAccent.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      'FARM: $farmName',
+                                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryAccent),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.onlineGreen.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Text(
+                                      '25 CATTLE',
+                                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.onlineGreen),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -96,28 +113,28 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // Simulation Mode Banner
+                  // System Status Card
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: AppColors.glassForestCard,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.warning.withValues(alpha: 0.5)),
+                      border: Border.all(color: AppColors.onlineGreen.withValues(alpha: 0.5)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.science, color: AppColors.warning, size: 24),
+                        const Icon(Icons.verified, color: AppColors.onlineGreen, size: 24),
                         const SizedBox(width: 12),
                         const Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'SIMULATION MODE ACTIVE',
-                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.warning),
+                                'AUTOMATIC FEEDING SYSTEM ACTIVE',
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.onlineGreen),
                               ),
                               Text(
-                                'Data streamed from sample dataset records for project demonstration.',
+                                'Connected & operating under automatic smart feeding mode.',
                                 style: TextStyle(fontSize: 11, color: Colors.white70),
                               ),
                             ],
@@ -125,7 +142,7 @@ class SettingsScreen extends StatelessWidget {
                         ),
                         Switch(
                           value: settingsProvider.isMockMode,
-                          activeColor: AppColors.warning,
+                          activeThumbColor: AppColors.onlineGreen,
                           onChanged: (val) {
                             settingsProvider.setMockMode(val);
                           },
@@ -135,7 +152,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // System Shortcuts & Info List
+                  // Farmer Shortcuts & Info List
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.glassForestCard,
@@ -145,9 +162,9 @@ class SettingsScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         ListTile(
-                          leading: const Icon(Icons.developer_board, color: AppColors.primaryAccent),
-                          title: const Text('IoT Hardware Architecture Diagram', style: TextStyle(color: Colors.white, fontSize: 14)),
-                          subtitle: const Text('View ESP32, Servo, Load Cell & Sensor Flow', style: TextStyle(color: Colors.white60, fontSize: 11)),
+                          leading: const Icon(Icons.schema_outlined, color: AppColors.primaryAccent),
+                          title: const Text('How Smart Feeding Works', style: TextStyle(color: Colors.white, fontSize: 14)),
+                          subtitle: const Text('View simple visual system flow & automatic operation', style: TextStyle(color: Colors.white60, fontSize: 11)),
                           trailing: const Icon(Icons.chevron_right, color: Colors.white54),
                           onTap: () {
                             Navigator.of(context).push(
@@ -158,8 +175,8 @@ class SettingsScreen extends StatelessWidget {
                         const Divider(color: Colors.white12, height: 1),
                         ListTile(
                           leading: const Icon(Icons.sensors, color: AppColors.primaryAccent),
-                          title: const Text('Live Sensors Telemetry Cluster', style: TextStyle(color: Colors.white, fontSize: 14)),
-                          subtitle: const Text('Inspect Ultrasonic, Load Cell, IR & Hall telemetry', style: TextStyle(color: Colors.white60, fontSize: 11)),
+                          title: const Text('Equipment & Component Status', style: TextStyle(color: Colors.white, fontSize: 14)),
+                          subtitle: const Text('Check storage bin, trough scale & gate status', style: TextStyle(color: Colors.white60, fontSize: 11)),
                           trailing: const Icon(Icons.chevron_right, color: Colors.white54),
                           onTap: () {
                             Navigator.of(context).push(
@@ -169,11 +186,15 @@ class SettingsScreen extends StatelessWidget {
                         ),
                         const Divider(color: Colors.white12, height: 1),
                         ListTile(
-                          leading: const Icon(Icons.psychology, color: AppColors.primaryAccent),
-                          title: const Text('AI/ML Engine Information', style: TextStyle(color: Colors.white, fontSize: 14)),
-                          subtitle: const Text('Random Forest Regressor & Classifier models', style: TextStyle(color: Colors.white60, fontSize: 11)),
+                          leading: const Icon(Icons.auto_awesome, color: AppColors.primaryAccent),
+                          title: const Text('Smart Recommendation Details', style: TextStyle(color: Colors.white, fontSize: 14)),
+                          subtitle: const Text('View daily feed targets tailored for your cattle', style: TextStyle(color: Colors.white60, fontSize: 11)),
                           trailing: const Icon(Icons.chevron_right, color: Colors.white54),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const AIFeedPredictionScreen()),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -201,7 +222,7 @@ class SettingsScreen extends StatelessWidget {
                         }
                       },
                       icon: const Icon(Icons.logout, size: 20),
-                      label: const Text('LOGOUT SYSTEM', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      label: const Text('LOG OUT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                     ),
                   ),
                 ],

@@ -16,7 +16,7 @@ class AIFeedPredictionScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Adaptive Feed Intelligence'),
+        title: const Text('Smart Recommendation Details'),
       ),
       body: Stack(
         children: [
@@ -53,22 +53,26 @@ class AIFeedPredictionScreen extends StatelessWidget {
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.psychology, color: AppColors.primaryAccent, size: 24),
+                            Icon(Icons.auto_awesome, color: AppColors.primaryAccent, size: 22),
                             SizedBox(width: 8),
-                            Text(
-                              'MODULE 1 — ADAPTIVE FEED REGRESSOR',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primaryAccent,
-                                letterSpacing: 0.6,
+                            Expanded(
+                              child: Text(
+                                'FEED QUANTITY RECOMMENDATION',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primaryAccent,
+                                  letterSpacing: 0.6,
+                                ),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'AI estimates the required hay quantity using current hopper and trough conditions.',
+                          'Calculates optimal hay weight based on current trough levels and cattle feeding history.',
                           style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.85)),
                         ),
                       ],
@@ -76,12 +80,12 @@ class AIFeedPredictionScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // Large Prediction Card
+                  // Large Recommendation Card
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(22),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [
                           AppColors.primaryDark,
                           AppColors.glassForestCard,
@@ -100,7 +104,7 @@ class AIFeedPredictionScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         const Text(
-                          'PREDICTED HAY QUANTITY',
+                          'RECOMMENDED HAY QUANTITY',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -110,18 +114,21 @@ class AIFeedPredictionScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
 
-                        Text(
-                          '${feedPred.predictedQuantityKg.toStringAsFixed(2)} kg',
-                          style: const TextStyle(
-                            fontSize: 42,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            height: 1.0,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            '${feedPred.predictedQuantityKg.toStringAsFixed(2)} kg',
+                            style: const TextStyle(
+                              fontSize: 38,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              height: 1.0,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 14),
 
-                        // Calibration Parameters Output (F = aT + b)
+                        // Parameters Output
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
@@ -131,37 +138,37 @@ class AIFeedPredictionScreen extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Column(
-                                children: [
-                                  const Text('Recommended Gate', style: TextStyle(fontSize: 10, color: Colors.white60)),
-                                  const SizedBox(height: 2),
-                                  Text('${feedPred.recommendedGateOpeningPercent.toStringAsFixed(0)}%', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primaryAccent)),
-                                ],
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    const FittedBox(fit: BoxFit.scaleDown, child: Text('Gate Opening', style: TextStyle(fontSize: 10, color: Colors.white60))),
+                                    const SizedBox(height: 2),
+                                    FittedBox(fit: BoxFit.scaleDown, child: Text('${feedPred.recommendedGateOpeningPercent.toStringAsFixed(0)}%', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.primaryAccent))),
+                                  ],
+                                ),
                               ),
                               Container(height: 24, width: 1, color: Colors.white24),
-                              Column(
-                                children: [
-                                  const Text('Est. Gate Time (T)', style: TextStyle(fontSize: 10, color: Colors.white60)),
-                                  const SizedBox(height: 2),
-                                  Text('${feedPred.estimatedGateTimeSeconds} s', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.amberAccent)),
-                                ],
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    const FittedBox(fit: BoxFit.scaleDown, child: Text('Dispense Duration', style: TextStyle(fontSize: 10, color: Colors.white60))),
+                                    const SizedBox(height: 2),
+                                    FittedBox(fit: BoxFit.scaleDown, child: Text('${feedPred.estimatedGateTimeSeconds} s', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.amberAccent))),
+                                  ],
+                                ),
                               ),
                               Container(height: 24, width: 1, color: Colors.white24),
-                              Column(
-                                children: [
-                                  const Text('Model Confidence', style: TextStyle(fontSize: 10, color: Colors.white60)),
-                                  const SizedBox(height: 2),
-                                  Text('${feedPred.confidencePercentage}%', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onlineGreen)),
-                                ],
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    const FittedBox(fit: BoxFit.scaleDown, child: Text('System Confidence', style: TextStyle(fontSize: 10, color: Colors.white60))),
+                                    const SizedBox(height: 2),
+                                    FittedBox(fit: BoxFit.scaleDown, child: Text('${feedPred.confidencePercentage}%', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.onlineGreen))),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(height: 10),
-
-                        Text(
-                          'Calibration Formula: F = aT + b (a = 0.30 kg/s, b = 0.05)',
-                          style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.5), fontFamily: 'monospace'),
                         ),
                       ],
                     ),
@@ -170,7 +177,7 @@ class AIFeedPredictionScreen extends StatelessWidget {
 
                   // Input Feature Cards Grid
                   const Text(
-                    'INPUT FEATURE VALUES (REGRESSOR)',
+                    'FARM FEEDING FACTORS',
                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryAccent, letterSpacing: 0.8),
                   ),
                   const SizedBox(height: 10),
@@ -183,12 +190,12 @@ class AIFeedPredictionScreen extends StatelessWidget {
                     mainAxisSpacing: 10,
                     childAspectRatio: 1.7,
                     children: [
-                      _buildFeatureTile('Hopper Level', '${feedRecord.hopperLevelCm} cm', Icons.inventory_2_outlined),
-                      _buildFeatureTile('Trough Wt Before', '${feedRecord.troughWeightBeforeKg} kg', Icons.scale_outlined),
-                      _buildFeatureTile('Prev Dispensed', '${feedRecord.previousDispensedKg} kg', Icons.history),
-                      _buildFeatureTile('Prev Leftover', '${feedRecord.previousLeftoverKg} kg', Icons.restaurant),
-                      _buildFeatureTile('Gate Opening', '${feedRecord.gateOpeningPercent}%', Icons.door_sliding),
-                      _buildFeatureTile('Timestamp', '08:00 AM', Icons.schedule),
+                      _buildFeatureTile('Bin Level Depth', '${feedRecord.hopperLevelCm} cm', Icons.inventory_2_outlined),
+                      _buildFeatureTile('Current Trough Wt', '${feedRecord.troughWeightBeforeKg} kg', Icons.scale_outlined),
+                      _buildFeatureTile('Last Dispensed', '${feedRecord.previousDispensedKg} kg', Icons.history),
+                      _buildFeatureTile('Previous Leftover', '${feedRecord.previousLeftoverKg} kg', Icons.restaurant),
+                      _buildFeatureTile('Disposer Gate', '${feedRecord.gateOpeningPercent}%', Icons.door_sliding),
+                      _buildFeatureTile('Scheduled Time', '08:00 AM', Icons.schedule),
                     ],
                   ),
                   const SizedBox(height: 18),
@@ -205,7 +212,7 @@ class AIFeedPredictionScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Target vs Actual Dispensed Quantity Comparison',
+                          'Feeding Target vs Actual Quantity Accuracy',
                           style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                         const SizedBox(height: 14),
@@ -216,7 +223,7 @@ class AIFeedPredictionScreen extends StatelessWidget {
                             BarChartData(
                               alignment: BarChartAlignment.spaceAround,
                               maxY: 2.0,
-                              barTouchData: BarTouchDataEnabled(false),
+                              barTouchData: BarTouchData(enabled: false),
                               titlesData: FlTitlesData(
                                 show: true,
                                 bottomTitles: AxisTitles(
@@ -225,15 +232,15 @@ class AIFeedPredictionScreen extends StatelessWidget {
                                     getTitlesWidget: (val, meta) {
                                       switch (val.toInt()) {
                                         case 0:
-                                          return const Text('Rec 1', style: TextStyle(color: Colors.white70, fontSize: 10));
+                                          return const Text('Feed 1', style: TextStyle(color: Colors.white70, fontSize: 10));
                                         case 1:
-                                          return const Text('Rec 2', style: TextStyle(color: Colors.white70, fontSize: 10));
+                                          return const Text('Feed 2', style: TextStyle(color: Colors.white70, fontSize: 10));
                                         case 2:
-                                          return const Text('Rec 3', style: TextStyle(color: Colors.white70, fontSize: 10));
+                                          return const Text('Feed 3', style: TextStyle(color: Colors.white70, fontSize: 10));
                                         case 3:
-                                          return const Text('Rec 4', style: TextStyle(color: Colors.white70, fontSize: 10));
+                                          return const Text('Feed 4', style: TextStyle(color: Colors.white70, fontSize: 10));
                                         case 4:
-                                          return const Text('Rec 5', style: TextStyle(color: Colors.white70, fontSize: 10));
+                                          return const Text('Feed 5', style: TextStyle(color: Colors.white70, fontSize: 10));
                                         default:
                                           return const Text('');
                                       }
@@ -278,7 +285,7 @@ class AIFeedPredictionScreen extends StatelessWidget {
                           children: [
                             Icon(Icons.circle, color: AppColors.primaryAccent, size: 10),
                             SizedBox(width: 4),
-                            Text('Predicted Target', style: TextStyle(fontSize: 11, color: Colors.white70)),
+                            Text('Recommended Target', style: TextStyle(fontSize: 11, color: Colors.white70)),
                             SizedBox(width: 16),
                             Icon(Icons.circle, color: AppColors.onlineGreen, size: 10),
                             SizedBox(width: 4),

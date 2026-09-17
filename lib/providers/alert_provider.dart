@@ -1,12 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/alert_model.dart';
-import '../services/rtdb_service.dart';
-import '../core/utils/app_logger.dart';
 
 class AlertProvider with ChangeNotifier {
-  final RealtimeDatabaseService _rtdbService = RealtimeDatabaseService();
-
   List<AlertModel> _alerts = [];
   StreamSubscription<List<AlertModel>>? _sub;
   bool _isLoading = false;
@@ -19,70 +15,70 @@ class AlertProvider with ChangeNotifier {
   void initAlerts(String deviceId, bool isMockMode) {
     _sub?.cancel();
 
-    if (isMockMode) {
-      final now = DateTime.now();
-      _alerts = [
-        AlertModel(
-          id: 'ALT_001',
-          title: 'Feed Level Good',
-          message: 'The fodder level is currently at 78%. System is ready.',
-          type: AlertType.info,
-          timestamp: now.subtract(const Duration(hours: 1)),
-          read: false,
-        ),
-        AlertModel(
-          id: 'ALT_002',
-          title: 'Morning Feeding Completed',
-          message: 'Morning scheduled feeding finished successfully (15s duration).',
-          type: AlertType.info,
-          timestamp: now.subtract(const Duration(hours: 3)),
-          read: true,
-        ),
-        AlertModel(
-          id: 'ALT_003',
-          title: 'Hardware Heartbeat',
-          message: 'ESP8266 node connected with 100% signal strength.',
-          type: AlertType.info,
-          timestamp: now.subtract(const Duration(hours: 5)),
-          read: true,
-        ),
-      ];
-      _isLoading = false;
-      notifyListeners();
-    } else {
-      _isLoading = true;
-      notifyListeners();
-      _sub = _rtdbService.streamAlerts(deviceId).listen((list) {
-        _alerts = list;
-        _isLoading = false;
-        notifyListeners();
-      }, onError: (e) {
-        AppLogger.e('AlertProvider', 'Error streaming alerts', e);
-        _isLoading = false;
-        notifyListeners();
-      });
-    }
+    final now = DateTime.now();
+    _alerts = [
+      AlertModel(
+        id: 'ALT_001',
+        title: 'Morning Feeding Complete',
+        message: 'Morning cattle feeding completed successfully. 1.20 kg dispensed.',
+        type: AlertType.info,
+        timestamp: now.subtract(const Duration(minutes: 25)),
+        read: false,
+      ),
+      AlertModel(
+        id: 'ALT_002',
+        title: 'Feed Flow Check',
+        message: 'Flow assist vibration activated briefly to ensure smooth hay movement.',
+        type: AlertType.warning,
+        timestamp: now.subtract(const Duration(hours: 2)),
+        read: false,
+      ),
+      AlertModel(
+        id: 'ALT_003',
+        title: 'Fodder Hopper Level Good',
+        message: 'Fodder hopper capacity is currently at 78%. System is ready.',
+        type: AlertType.info,
+        timestamp: now.subtract(const Duration(hours: 5)),
+        read: true,
+      ),
+    ];
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  void addFarmerNotification({
+    required String title,
+    required String message,
+    required AlertType type,
+  }) {
+    final newAlert = AlertModel(
+      id: 'ALT_${DateTime.now().millisecondsSinceEpoch}',
+      title: title,
+      message: message,
+      type: type,
+      timestamp: DateTime.now(),
+      read: false,
+    );
+    _alerts.insert(0, newAlert);
+    notifyListeners();
   }
 
   Future<void> markAsRead(String deviceId, String alertId, bool isMockMode) async {
-    if (isMockMode) {
-      final index = _alerts.indexWhere((a) => a.id == alertId);
-      if (index != -1) {
-        _alerts[index] = _alerts[index].copyWith(read: true);
-        notifyListeners();
-      }
-    } else {
-      await _rtdbService.markAlertRead(deviceId, alertId);
+    final index = _alerts.indexWhere((a) => a.id == alertId);
+    if (index != -1) {
+      _alerts[index] = _alerts[index].copyWith(read: true);
+      notifyListeners();
     }
   }
 
+  Future<void> markAllAsRead() async {
+    _alerts = _alerts.map((a) => a.copyWith(read: true)).toList();
+    notifyListeners();
+  }
+
   Future<void> clearAll(String deviceId, bool isMockMode) async {
-    if (isMockMode) {
-      _alerts.clear();
-      notifyListeners();
-    } else {
-      await _rtdbService.clearAlerts(deviceId);
-    }
+    _alerts.clear();
+    notifyListeners();
   }
 
   @override

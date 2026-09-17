@@ -98,7 +98,7 @@ class BlockageRiskCard extends StatelessWidget {
           const SizedBox(height: 16),
 
           const Text(
-            'SENSOR EVIDENCE & SYSTEM DIAGNOSTICS',
+            'FEED FLOW MONITORING',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,

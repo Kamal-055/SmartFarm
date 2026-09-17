@@ -48,24 +48,31 @@ class AIInsightCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Badge Header
+            // Top Badge Header (Overflow-proof)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Icon(icon, color: accentColor, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      moduleTitle,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(icon, color: accentColor, size: 18),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          moduleTitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
@@ -87,18 +94,24 @@ class AIInsightCard extends StatelessWidget {
             const SizedBox(height: 14),
 
             // Main Value & Label
-            Text(
-              primaryValue,
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                height: 1.1,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                primaryValue,
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  height: 1.1,
+                ),
               ),
             ),
             const SizedBox(height: 2),
             Text(
               primaryLabel,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.white.withValues(alpha: 0.75),

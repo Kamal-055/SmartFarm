@@ -16,7 +16,7 @@ class BlockagePredictionScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Flow & Blockage Intelligence'),
+        title: const Text('Feed Flow & Safety'),
       ),
       body: Stack(
         children: [
@@ -53,22 +53,26 @@ class BlockagePredictionScreen extends StatelessWidget {
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.security, color: AppColors.primaryAccent, size: 24),
+                            Icon(Icons.shield_outlined, color: AppColors.primaryAccent, size: 22),
                             SizedBox(width: 8),
-                            Text(
-                              'MODULE 2 — BLOCKAGE CLASSIFIER',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primaryAccent,
-                                letterSpacing: 0.6,
+                            Expanded(
+                              child: Text(
+                                'AUTOMATIC FLOW MONITORING',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primaryAccent,
+                                  letterSpacing: 0.6,
+                                ),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Evaluates 9 sensor inputs to classify blockage risk into Normal, Moderate Risk, or Severe Risk.',
+                          'Monitors hay flow continuously and activates automatic flow assistance if hay movement slows.',
                           style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.85)),
                         ),
                       ],
@@ -83,9 +87,9 @@ class BlockagePredictionScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 18),
 
-                  // Interactive Scenario Selector for Presentation Demo
+                  // Scenario Selector
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: AppColors.glassForestCard,
                       borderRadius: BorderRadius.circular(22),
@@ -95,7 +99,7 @@ class BlockagePredictionScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'PROJECT DEMONSTRATION SCENARIO SELECTOR',
+                          'SIMULATION FLOW SCENARIO TEST',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -113,16 +117,19 @@ class BlockagePredictionScreen extends StatelessWidget {
                                   backgroundColor: AppColors.onlineGreen.withValues(alpha: 0.2),
                                   foregroundColor: AppColors.onlineGreen,
                                   side: const BorderSide(color: AppColors.onlineGreen),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
                                 onPressed: () {
                                   simProvider.triggerDemoNormal();
                                 },
-                                child: const Text('DEMO 1\nNORMAL', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                                child: const FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text('SMOOTH FLOW', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
 
                             Expanded(
                               child: ElevatedButton(
@@ -130,16 +137,19 @@ class BlockagePredictionScreen extends StatelessWidget {
                                   backgroundColor: Colors.orangeAccent.withValues(alpha: 0.2),
                                   foregroundColor: Colors.orangeAccent,
                                   side: const BorderSide(color: Colors.orangeAccent),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
                                 onPressed: () {
                                   simProvider.triggerDemoModerateBlockage();
                                 },
-                                child: const Text('DEMO 2\nMODERATE', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                                child: const FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text('SLIGHT DELAY', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
 
                             Expanded(
                               child: ElevatedButton(
@@ -147,13 +157,16 @@ class BlockagePredictionScreen extends StatelessWidget {
                                   backgroundColor: Colors.redAccent.withValues(alpha: 0.2),
                                   foregroundColor: Colors.redAccent,
                                   side: const BorderSide(color: Colors.redAccent),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
                                 onPressed: () {
                                   simProvider.triggerDemoSevereBlockage();
                                 },
-                                child: const Text('DEMO 3\nSEVERE', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                                child: const FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text('CLOG ALERT', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                                ),
                               ),
                             ),
                           ],

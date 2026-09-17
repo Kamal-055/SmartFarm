@@ -1,16 +1,20 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive.dart';
 
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final padding = Responsive.horizontalPadding(context);
+    final gridRatio = Responsive.sensorGridRatio(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Smart Livestock Analytics'),
+        title: const Text('Farm Insights'),
       ),
       body: Stack(
         children: [
@@ -29,51 +33,23 @@ class AnalyticsScreen extends StatelessWidget {
 
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.only(left: 14, right: 14, top: 12, bottom: 120),
+              padding: EdgeInsets.only(left: padding, right: padding, top: 12, bottom: 120),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Academic Honesty Disclaimer Banner
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.warningBackground,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.warning.withValues(alpha: 0.5)),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.science, color: AppColors.warning, size: 20),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'Demonstration Dataset — Analytics generated from simulated IoT telemetry stream.',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.warning,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // 1. Performance Metric Summary Cards
+                  // 1. Farm Performance Metric Summary Cards (Responsive)
                   GridView.count(
                     crossAxisCount: 2,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
-                    childAspectRatio: 1.6,
+                    childAspectRatio: gridRatio,
                     children: [
-                      _buildMetricCard('Total Feeding Cycles', '48', 'Cycles Executed', Icons.loop, AppColors.primaryAccent),
-                      _buildMetricCard('Average Feed Qty', '1.15 kg', 'Per Dispense', Icons.balance, Colors.cyanAccent),
-                      _buildMetricCard('Total Hay Dispensed', '55.2 kg', 'This Month', Icons.grass, AppColors.onlineGreen),
-                      _buildMetricCard('Blockage Events', '2 Risk Logged', 'Mitigated Automatically', Icons.shield, Colors.orangeAccent),
+                      _buildMetricCard("Today's Feed", '3.40 kg', 'Total Dispensed', Icons.grass, AppColors.onlineGreen),
+                      _buildMetricCard('Feeding Cycles', '3', 'Today', Icons.loop, AppColors.primaryAccent),
+                      _buildMetricCard('Feed Flow Check', '1', 'Flow Assisted', Icons.shield, Colors.orangeAccent),
+                      _buildMetricCard('Successful Feedings', '3', '100% Success', Icons.check_circle, Colors.cyanAccent),
                     ],
                   ),
                   const SizedBox(height: 18),
@@ -90,7 +66,7 @@ class AnalyticsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Feed Dispense Quantity History (Target vs Actual)',
+                          'Daily Feed Usage (Target vs Actual)',
                           style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                         const SizedBox(height: 16),
@@ -164,7 +140,7 @@ class AnalyticsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Hopper Hay Level Drift (Ultrasonic HC-SR04)',
+                          'Fodder Storage Bin Level History',
                           style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                         const SizedBox(height: 14),
@@ -175,7 +151,7 @@ class AnalyticsScreen extends StatelessWidget {
                             BarChartData(
                               alignment: BarChartAlignment.spaceAround,
                               maxY: 30,
-                              barTouchData: BarTouchDataEnabled(false),
+                              barTouchData: BarTouchData(enabled: false),
                               borderData: FlBorderData(show: false),
                               barGroups: [
                                 BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 10.5, color: Colors.amberAccent, width: 14)]),

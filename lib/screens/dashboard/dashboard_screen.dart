@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/responsive.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/farm_provider.dart';
 import '../../providers/simulation_provider.dart';
 import '../../widgets/activity_timeline.dart';
 import '../../widgets/ai_insight_card.dart';
 import '../../widgets/sensor_card.dart';
-import '../../widgets/simulation_control_bar.dart';
 import '../ai_models/ai_feed_prediction_screen.dart';
 import '../ai_models/blockage_prediction_screen.dart';
 
@@ -28,6 +28,9 @@ class DashboardScreen extends StatelessWidget {
     final feedPred = simProvider.currentFeedPrediction;
     final blockagePred = simProvider.currentBlockagePrediction;
 
+    final padding = Responsive.horizontalPadding(context);
+    final gridRatio = Responsive.sensorGridRatio(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
@@ -47,14 +50,14 @@ class DashboardScreen extends StatelessWidget {
 
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.only(left: 14, right: 14, top: 12, bottom: 120),
+              padding: EdgeInsets.only(left: padding, right: padding, top: 12, bottom: 120),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 1. Top Header: Welcome Greeting & Honest Connection Status Badge
+                  // 1. Top Header: Welcome Greeting & System Status Badge
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: AppColors.glassForestCard,
                       borderRadius: BorderRadius.circular(22),
@@ -80,11 +83,11 @@ class DashboardScreen extends StatelessWidget {
                               child: Row(
                                 children: [
                                   CircleAvatar(
-                                    radius: 20,
+                                    radius: 18,
                                     backgroundColor: AppColors.primaryAccent.withValues(alpha: 0.2),
-                                    child: const Icon(Icons.person, color: AppColors.primaryAccent, size: 22),
+                                    child: const Icon(Icons.person, color: AppColors.primaryAccent, size: 20),
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 8),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,11 +102,11 @@ class DashboardScreen extends StatelessWidget {
                                           ),
                                         ),
                                         const Text(
-                                          'Smart Livestock AI System',
+                                          'Smart Cattle Feeding',
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
-                                            fontSize: 16,
+                                            fontSize: 15,
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white,
                                           ),
@@ -114,59 +117,53 @@ class DashboardScreen extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
 
-                            // Honest Connection Badge (Simulation Online)
+                            // Honest Connection Badge (System Online Tag)
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
                                 color: AppColors.onlineGreen.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(14),
                                 border: Border.all(color: AppColors.onlineGreen.withValues(alpha: 0.5)),
                               ),
-                              child: const Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.sensors, color: AppColors.onlineGreen, size: 12),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        '● Simulation Online',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.onlineGreen,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                  Icon(Icons.check_circle_rounded, color: AppColors.onlineGreen, size: 12),
+                                  SizedBox(width: 4),
                                   Text(
-                                    'Simulated IoT Data',
-                                    style: TextStyle(fontSize: 9, color: Colors.white70),
+                                    '● System Online',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.onlineGreen,
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 10),
 
                         // Farm Name & Weather Bar
                         Row(
                           children: [
                             const Icon(Icons.location_on, color: AppColors.primaryAccent, size: 14),
                             const SizedBox(width: 4),
-                            Text(
-                              farmName,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                            Expanded(
+                              child: Text(
+                                farmName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                              ),
                             ),
-                            const Spacer(),
                             const Icon(Icons.wb_sunny, color: Colors.amber, size: 14),
                             const SizedBox(width: 4),
                             Text(
-                              '28°C | Sunny / Clear',
+                              '28°C | Sunny',
                               style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.8)),
                             ),
                           ],
@@ -176,13 +173,69 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
 
-                  // 2. Real-Time IoT Simulation Stream Control Bar
-                  const SimulationControlBar(),
+                  // 2. Agricultural Hero Card
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primaryDark,
+                          AppColors.primaryMedium.withValues(alpha: 0.8),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.primaryAccent.withValues(alpha: 0.4)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        )
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryAccent.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.pets, color: AppColors.primaryAccent, size: 28),
+                        ),
+                        const SizedBox(width: 14),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Your cattle are taken care of.',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                'Automatic feeding system active & monitoring hay level.',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 16),
 
                   // Section Title
                   const Text(
-                    'LIVE SENSOR TELEMETRY',
+                    'LIVE FARM STATUS',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -192,62 +245,46 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
 
-                  // 3. Live Sensor Telemetry 2x3 Grid
+                  // 3. Live Farm Status 2x2 Grid (Farmer Friendly Cards)
                   GridView.count(
                     crossAxisCount: 2,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
-                    childAspectRatio: 1.45,
+                    childAspectRatio: gridRatio,
                     children: [
                       SensorCard(
-                        title: 'Hopper Level',
+                        title: '🌾 Fodder Bin',
                         value: feedRecord.hopperLevelCm.toStringAsFixed(1),
                         unit: 'cm',
                         icon: Icons.inventory_2_outlined,
                         accentColor: Colors.amberAccent,
-                        subtitle: 'Ultrasonic Sensor',
+                        subtitle: 'Fodder Level Good',
                       ),
                       SensorCard(
-                        title: 'Trough Weight',
+                        title: '⚖ Feed Trough',
                         value: feedRecord.troughWeightBeforeKg.toStringAsFixed(2),
                         unit: 'kg',
                         icon: Icons.scale_outlined,
                         accentColor: Colors.cyanAccent,
-                        subtitle: 'Load Cell + HX711',
+                        subtitle: 'Current Trough Weight',
                       ),
                       SensorCard(
-                        title: 'Gate Position',
-                        value: feedRecord.gateOpeningPercent.toStringAsFixed(0),
-                        unit: '%',
-                        icon: Icons.door_sliding_outlined,
-                        accentColor: AppColors.primaryAccent,
-                        subtitle: 'Servo Motor',
-                      ),
-                      SensorCard(
-                        title: 'Hay Flow',
-                        value: blockageRecord.irFlowDetected ? 'DETECTED' : 'IDLE',
+                        title: '🌿 Feed Flow',
+                        value: blockageRecord.irFlowDetected ? 'FLOWING' : 'READY',
                         unit: '',
                         icon: Icons.sensors,
-                        accentColor: blockageRecord.irFlowDetected ? AppColors.onlineGreen : Colors.orangeAccent,
-                        subtitle: 'IR Break Beam',
+                        accentColor: blockageRecord.irFlowDetected ? AppColors.onlineGreen : Colors.amber,
+                        subtitle: 'Hay Movement Status',
                       ),
-                      SensorCard(
-                        title: 'Vibration Motor',
-                        value: blockagePred.vibratorActivated ? 'ACTIVE' : 'OFF',
-                        unit: '',
-                        icon: Icons.vibration,
-                        accentColor: blockagePred.vibratorActivated ? Colors.orangeAccent : Colors.grey,
-                        subtitle: 'Blockage Mitigation',
-                      ),
-                      SensorCard(
-                        title: 'System State',
+                      const SensorCard(
+                        title: '✓ System Status',
                         value: 'READY',
                         unit: '',
                         icon: Icons.check_circle_outline,
                         accentColor: AppColors.onlineGreen,
-                        subtitle: 'ESP32 Controller',
+                        subtitle: 'Dispenser Connected',
                       ),
                     ],
                   ),
@@ -255,7 +292,7 @@ class DashboardScreen extends StatelessWidget {
 
                   // Section Title
                   const Text(
-                    'DUAL AI MODULE PREDICTIONS',
+                    'SMART FEED RECOMMENDATION',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -265,16 +302,16 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
 
-                  // 4. Two Major AI Status Cards
+                  // 4. Two Major Smart Feeding Cards
                   Row(
                     children: [
-                      // Module 1: Adaptive Feed AI
+                      // Smart Feed Recommendation Card
                       Expanded(
                         child: AIInsightCard(
-                          moduleTitle: 'Adaptive Feed AI',
+                          moduleTitle: 'Smart Feed',
                           primaryValue: '${feedPred.predictedQuantityKg.toStringAsFixed(2)} kg',
-                          primaryLabel: 'Predicted Hay Quantity',
-                          statusText: 'Gate Time: ${feedPred.estimatedGateTimeSeconds}s',
+                          primaryLabel: 'Recommended Feed',
+                          statusText: 'Optimal Farm Quantity',
                           confidencePercentage: feedPred.confidencePercentage,
                           icon: Icons.psychology,
                           accentColor: AppColors.primaryAccent,
@@ -287,13 +324,13 @@ class DashboardScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 10),
 
-                      // Module 2: Blockage AI
+                      // Feed Flow Status Card
                       Expanded(
                         child: AIInsightCard(
-                          moduleTitle: 'Blockage AI',
+                          moduleTitle: 'Feed Flow',
                           primaryValue: blockagePred.riskTitle,
-                          primaryLabel: 'Classifier Output',
-                          statusText: blockagePred.vibratorActivated ? 'Vibration ON' : 'Normal Flow',
+                          primaryLabel: 'Flow Status',
+                          statusText: blockagePred.vibratorActivated ? 'Vibration Active' : 'Normal Flow',
                           confidencePercentage: blockagePred.confidencePercentage,
                           icon: Icons.security,
                           accentColor: blockagePred.riskCode == 0
@@ -310,7 +347,7 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 18),
 
-                  // 5. System Activity Timeline
+                  // 5. Recent Farm Activity Timeline
                   ActivityTimelineWidget(activityLog: simProvider.activityLog),
                 ],
               ),

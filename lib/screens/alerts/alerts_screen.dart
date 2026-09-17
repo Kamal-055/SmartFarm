@@ -1,25 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-
-class SystemAlertItem {
-  final String title;
-  final String message;
-  final String category; // Blockage, Feeding, System
-  final String severity; // NORMAL, MODERATE, SEVERE
-  final DateTime timestamp;
-  final String recommendedAction;
-  bool isRead;
-
-  SystemAlertItem({
-    required this.title,
-    required this.message,
-    required this.category,
-    required this.severity,
-    required this.timestamp,
-    required this.recommendedAction,
-    this.isRead = false,
-  });
-}
+import '../../models/alert_model.dart';
+import '../../providers/alert_provider.dart';
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key});
@@ -31,57 +14,36 @@ class AlertsScreen extends StatefulWidget {
 class _AlertsScreenState extends State<AlertsScreen> {
   String _selectedCategory = 'All';
 
-  final List<SystemAlertItem> _alerts = [
-    SystemAlertItem(
-      title: 'Severe Blockage Detected',
-      message: 'IR flow broken and load-cell weight static during feed cycle #003.',
-      category: 'Blockage',
-      severity: 'SEVERE',
-      timestamp: DateTime.now().subtract(const Duration(minutes: 12)),
-      recommendedAction: 'Corrective action initiated: Vibration ON & Gate increased to 55%.',
-    ),
-    SystemAlertItem(
-      title: 'Moderate Blockage Warning',
-      message: 'Hay flow delay detected during record #2 dispense.',
-      category: 'Blockage',
-      severity: 'MODERATE',
-      timestamp: DateTime.now().subtract(const Duration(minutes: 45)),
-      recommendedAction: 'Preventive vibration motor pulse executed for 1.5s.',
-    ),
-    SystemAlertItem(
-      title: 'Feeding Cycle Completed',
-      message: 'Dispensed 1.20 kg successfully to Milking Herd trough.',
-      category: 'Feeding',
-      severity: 'NORMAL',
-      timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-      recommendedAction: 'No action required.',
-    ),
-    SystemAlertItem(
-      title: 'Hopper Low Level Warning',
-      message: 'Ultrasonic sensor depth reading: 24.0 cm (Hopper < 25% capacity).',
-      category: 'System',
-      severity: 'MODERATE',
-      timestamp: DateTime.now().subtract(const Duration(hours: 5)),
-      recommendedAction: 'Refill gravity hopper with fresh fodder.',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final alertProvider = Provider.of<AlertProvider>(context);
+    final alerts = alertProvider.alerts;
+
     final filteredAlerts = _selectedCategory == 'All'
-        ? _alerts
-        : _alerts.where((a) => a.category == _selectedCategory).toList();
+        ? alerts
+        : alerts.where((a) {
+            if (_selectedCategory == 'Feeding') return a.title.contains('Feed') || a.title.contains('Dispense');
+            if (_selectedCategory == 'Flow') return a.title.contains('Flow') || a.title.contains('Blockage');
+            if (_selectedCategory == 'Storage') return a.title.contains('Storage') || a.title.contains('Hopper');
+            return true;
+          }).toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Smart Alert Center'),
+        title: const Text('Farm Notifications'),
         actions: [
+          if (alertProvider.unreadCount > 0)
+            TextButton.icon(
+              onPressed: () => alertProvider.markAllAsRead(),
+              icon: const Icon(Icons.done_all, color: AppColors.primaryAccent, size: 18),
+              label: const Text('Mark Read', style: TextStyle(color: AppColors.primaryAccent, fontSize: 12)),
+            ),
           IconButton(
-            tooltip: 'Clear All Alerts',
+            tooltip: 'Clear All',
             icon: const Icon(Icons.delete_sweep_outlined),
             onPressed: () {
-              setState(() => _alerts.clear());
+              alertProvider.clearAll('DEV_DEVICE', true);
             },
           ),
         ],
@@ -107,30 +69,27 @@ class _AlertsScreenState extends State<AlertsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Category Filter Chips
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: ['All', 'Blockage', 'Feeding', 'System'].map((cat) {
-                        final isSel = _selectedCategory == cat;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: ChoiceChip(
-                            label: Text(cat),
-                            selected: isSel,
-                            selectedColor: AppColors.primaryAccent,
-                            backgroundColor: AppColors.glassForestCard,
-                            labelStyle: TextStyle(
-                              color: isSel ? AppColors.primaryDark : Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            onSelected: (val) {
-                              if (val) setState(() => _selectedCategory = cat);
-                            },
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                  // Filter Chips
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: ['All', 'Feeding', 'Flow', 'Storage'].map((cat) {
+                      final isSel = _selectedCategory == cat;
+                      return ChoiceChip(
+                        label: Text(cat),
+                        selected: isSel,
+                        selectedColor: AppColors.primaryAccent,
+                        backgroundColor: AppColors.glassForestCard,
+                        labelStyle: TextStyle(
+                          color: isSel ? AppColors.primaryDark : Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                        onSelected: (val) {
+                          if (val) setState(() => _selectedCategory = cat);
+                        },
+                      );
+                    }).toList(),
                   ),
                   const SizedBox(height: 16),
 
@@ -146,9 +105,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         children: [
                           Icon(Icons.notifications_off_outlined, color: Colors.white54, size: 48),
                           SizedBox(height: 12),
-                          Text('No System Alerts', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text('No Farm Notifications', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                           SizedBox(height: 4),
-                          Text('All hardware sensors and AI modules running normally.', style: TextStyle(color: Colors.white60, fontSize: 12)),
+                          Text('All feeding systems are running smoothly.', style: TextStyle(color: Colors.white60, fontSize: 12)),
                         ],
                       ),
                     )
@@ -163,28 +122,30 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         Color sevColor;
                         IconData icon;
 
-                        switch (item.severity) {
-                          case 'SEVERE':
+                        switch (item.type) {
+                          case AlertType.critical:
                             sevColor = AppColors.error;
                             icon = Icons.report_problem;
                             break;
-                          case 'MODERATE':
+                          case AlertType.warning:
                             sevColor = Colors.orangeAccent;
                             icon = Icons.warning_amber;
                             break;
-                          case 'NORMAL':
-                          default:
+                          case AlertType.info:
                             sevColor = AppColors.onlineGreen;
                             icon = Icons.check_circle_outline;
                             break;
                         }
 
                         return Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: AppColors.glassForestCard,
+                            color: item.read ? AppColors.glassForestCard : AppColors.glassForestCard.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: sevColor.withValues(alpha: 0.5), width: 1.2),
+                            border: Border.all(
+                              color: item.read ? sevColor.withValues(alpha: 0.3) : sevColor,
+                              width: item.read ? 1.0 : 1.5,
+                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,40 +153,35 @@ class _AlertsScreenState extends State<AlertsScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Icon(icon, color: sevColor, size: 20),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        item.title,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: sevColor,
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Icon(icon, color: sevColor, size: 18),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            item.title,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                              color: sevColor,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
+                                  const SizedBox(width: 8),
                                   Text(
-                                    item.severity,
-                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: sevColor),
+                                    _formatTime(item.timestamp),
+                                    style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.6)),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 8),
                               Text(item.message, style: const TextStyle(fontSize: 12, color: Colors.white)),
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  'Action: ${item.recommendedAction}',
-                                  style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.8)),
-                                ),
-                              ),
                             ],
                           ),
                         );
@@ -238,5 +194,13 @@ class _AlertsScreenState extends State<AlertsScreen> {
         ],
       ),
     );
+  }
+
+  String _formatTime(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return '${diff.inDays}d ago';
   }
 }

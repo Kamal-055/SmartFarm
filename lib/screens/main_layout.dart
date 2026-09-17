@@ -52,6 +52,9 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final alertProvider = Provider.of<AlertProvider>(context);
+    final unreadCount = alertProvider.unreadCount;
+
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
@@ -81,27 +84,61 @@ class _MainLayoutState extends State<MainLayout> {
               ),
             ),
             const SizedBox(width: 10),
-            Text(
-              AppConstants.appName,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: AppColors.textPrimary,
-                letterSpacing: 0.5,
+            const Expanded(
+              child: Text(
+                AppConstants.appName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: AppColors.textPrimary,
+                  letterSpacing: 0.5,
+                ),
               ),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.analytics_outlined, size: 24, color: AppColors.textPrimary),
+            icon: const Icon(Icons.show_chart_rounded, size: 22, color: AppColors.textPrimary),
             onPressed: () => setState(() => _currentIndex = 2),
           ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, size: 24, color: AppColors.textPrimary),
-            onPressed: () => setState(() => _currentIndex = 3),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined, size: 22, color: AppColors.textPrimary),
+                onPressed: () => setState(() => _currentIndex = 3),
+              ),
+              if (unreadCount > 0)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.redAccent,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    child: Text(
+                      '$unreadCount',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 4),
         ],
       ),
       body: IndexedStack(
@@ -109,15 +146,15 @@ class _MainLayoutState extends State<MainLayout> {
         children: _pages,
       ),
 
-      // Master 5-Tab Floating Glass Navigation Bar (Dashboard, Feeding, Analytics, Alerts, Profile)
+      // Master 5-Tab Floating Glass Navigation Bar (Home, Feeding, Insights, Alerts, Profile)
       bottomNavigationBar: SafeArea(
         child: Container(
-          height: 68,
-          margin: const EdgeInsets.only(left: 14, right: 14, bottom: 12),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          height: 66,
+          margin: const EdgeInsets.only(left: 10, right: 10, bottom: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             color: AppColors.glassForestCard,
-            borderRadius: BorderRadius.circular(36),
+            borderRadius: BorderRadius.circular(32),
             border: Border.all(
               color: AppColors.glassForestBorder,
               width: 1.2,
@@ -131,13 +168,13 @@ class _MainLayoutState extends State<MainLayout> {
             ],
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildNavItem(0, Icons.grid_view_rounded, Icons.grid_view_outlined, 'Dashboard'),
-              _buildNavItem(1, Icons.precision_manufacturing_rounded, Icons.precision_manufacturing_outlined, 'Feeding'),
-              _buildNavItem(2, Icons.analytics_rounded, Icons.analytics_outlined, 'Analytics'),
-              _buildNavItem(3, Icons.notifications_rounded, Icons.notifications_outlined, 'Alerts'),
-              _buildNavItem(4, Icons.person_rounded, Icons.person_outlined, 'Profile'),
+              Expanded(child: _buildNavItem(0, Icons.home_rounded, Icons.home_outlined, 'Home')),
+              Expanded(child: _buildNavItem(1, Icons.grass_rounded, Icons.grass_outlined, 'Feeding')),
+              Expanded(child: _buildNavItem(2, Icons.insights_rounded, Icons.insights_outlined, 'Insights')),
+              Expanded(child: _buildNavItem(3, Icons.notifications_rounded, Icons.notifications_outlined, 'Alerts')),
+              Expanded(child: _buildNavItem(4, Icons.person_rounded, Icons.person_outlined, 'Profile')),
             ],
           ),
         ),
@@ -149,24 +186,29 @@ class _MainLayoutState extends State<MainLayout> {
     final isSelected = _currentIndex == index;
     return InkWell(
       onTap: () => setState(() => _currentIndex = index),
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      borderRadius: BorderRadius.circular(18),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               isSelected ? activeIcon : inactiveIcon,
-              size: 22,
+              size: 20,
               color: isSelected ? AppColors.primaryAccent : Colors.white.withValues(alpha: 0.6),
             ),
             const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? AppColors.primaryAccent : Colors.white.withValues(alpha: 0.6),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? AppColors.primaryAccent : Colors.white.withValues(alpha: 0.6),
+                ),
               ),
             ),
           ],

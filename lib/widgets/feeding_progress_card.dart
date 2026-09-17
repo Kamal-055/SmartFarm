@@ -51,22 +51,29 @@ class FeedingProgressCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
-                children: [
-                  Icon(Icons.precision_manufacturing, color: AppColors.primaryAccent, size: 22),
-                  SizedBox(width: 8),
-                  Text(
-                    'Live Hay Dispenser Controls',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+              const Expanded(
+                child: Row(
+                  children: [
+                    Icon(Icons.precision_manufacturing, color: AppColors.primaryAccent, size: 20),
+                    SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Live Hay Dispenser Controls',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 6),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: isFeedingActive
                       ? AppColors.onlineGreen.withValues(alpha: 0.2)
@@ -87,11 +94,11 @@ class FeedingProgressCard extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 4),
                     Text(
                       isFeedingActive ? 'DISPENSING ACTIVE' : 'IDLE / READY',
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 9,
                         fontWeight: FontWeight.bold,
                         color: isFeedingActive ? AppColors.onlineGreen : Colors.white70,
                       ),
@@ -101,13 +108,13 @@ class FeedingProgressCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
 
           // Visual Dispenser Chamber Graphic (Hopper -> Gate -> Hay Flow -> Trough)
           Container(
             height: 140,
             width: double.infinity,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.35),
               borderRadius: BorderRadius.circular(18),
@@ -126,20 +133,27 @@ class FeedingProgressCard extends StatelessWidget {
                       border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
                     ),
                     child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.inventory_2, color: Colors.amber, size: 16),
-                          const SizedBox(width: 6),
-                          Text(
-                            'GRAVITY HOPPER (HAY DISPENSER)',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.amber.withValues(alpha: 0.9),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.inventory_2, color: Colors.amber, size: 14),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                'GRAVITY HOPPER (HAY DISPENSER)',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.amber.withValues(alpha: 0.9),
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -152,11 +166,11 @@ class FeedingProgressCard extends StatelessWidget {
                     children: [
                       const Expanded(child: Divider(color: AppColors.primaryAccent, thickness: 2)),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
                         child: Text(
                           'GATE OPENING: ${gateOpeningPercent.toStringAsFixed(0)}%',
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
                             fontWeight: FontWeight.bold,
                             color: AppColors.primaryAccent,
                           ),
@@ -173,29 +187,36 @@ class FeedingProgressCard extends StatelessWidget {
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceDark,
+                      color: AppColors.primaryDark,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: AppColors.primaryAccent.withValues(alpha: 0.5)),
                     ),
                     child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            isFeedingActive ? Icons.grass : Icons.table_restaurant,
-                            color: isFeedingActive ? AppColors.onlineGreen : Colors.white60,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            isFeedingActive ? 'HAY FLOWING INTO TROUGH...' : 'FEED TROUGH (LOAD CELL)',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: isFeedingActive ? AppColors.onlineGreen : Colors.white70,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              isFeedingActive ? Icons.grass : Icons.table_restaurant,
+                              color: isFeedingActive ? AppColors.onlineGreen : Colors.white60,
+                              size: 14,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                isFeedingActive ? 'HAY FLOWING INTO TROUGH...' : 'FEED TROUGH (LOAD CELL)',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: isFeedingActive ? AppColors.onlineGreen : Colors.white70,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -203,19 +224,24 @@ class FeedingProgressCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
 
           // Progress Bar & Percentage
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Current Dispensed: ${currentDispensedKg.toStringAsFixed(2)} kg',
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+              Expanded(
+                child: Text(
+                  'Current Dispensed: ${currentDispensedKg.toStringAsFixed(2)} kg',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
               ),
+              const SizedBox(width: 8),
               Text(
                 '$percentText%',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primaryAccent),
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.primaryAccent),
               ),
             ],
           ),
@@ -230,48 +256,43 @@ class FeedingProgressCard extends StatelessWidget {
               valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryAccent),
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
 
           // Metrics Summary Row
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildMetricTile('Target Qty', '${targetQuantityKg.toStringAsFixed(2)} kg'),
-              _buildMetricTile('Gate Time', '${gateTimeSeconds.toStringAsFixed(1)} s'),
-              _buildMetricTile('Gate Pos', '${gateOpeningPercent.toStringAsFixed(0)}%'),
+              Expanded(child: _buildMetricTile('Target Qty', '${targetQuantityKg.toStringAsFixed(2)} kg')),
+              const SizedBox(width: 6),
+              Expanded(child: _buildMetricTile('Gate Time', '${gateTimeSeconds.toStringAsFixed(1)} s')),
+              const SizedBox(width: 6),
+              Expanded(child: _buildMetricTile('Gate Pos', '${gateOpeningPercent.toStringAsFixed(0)}%')),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
 
           // Action Buttons: START FEEDING / PAUSE / STOP
           Row(
             children: [
               Expanded(
-                child: ElevatedButton.styleFrom(
-                  backgroundColor: isFeedingActive ? Colors.orangeAccent : AppColors.primaryAccent,
-                  foregroundColor: AppColors.primaryDark,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ).build(
-                  context,
-                ) is Widget
-                    ? SizedBox(
-                        height: 48,
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: isFeedingActive ? Colors.orangeAccent : AppColors.primaryAccent,
-                            foregroundColor: AppColors.primaryDark,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          ),
-                          onPressed: isFeedingActive ? onStop : onStart,
-                          icon: Icon(isFeedingActive ? Icons.pause_circle_outline : Icons.play_circle_outline, size: 22),
-                          label: Text(
-                            isFeedingActive ? 'PAUSE / STOP' : 'START FEEDING',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                          ),
-                        ),
-                      )
-                    : const SizedBox.shrink(),
+                child: SizedBox(
+                  height: 46,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isFeedingActive ? Colors.orangeAccent : AppColors.primaryAccent,
+                      foregroundColor: AppColors.primaryDark,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                    onPressed: isFeedingActive ? onStop : onStart,
+                    icon: Icon(isFeedingActive ? Icons.pause_circle_outline : Icons.play_circle_outline, size: 20),
+                    label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        isFeedingActive ? 'PAUSE / STOP' : 'START FEEDING',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -282,16 +303,22 @@ class FeedingProgressCard extends StatelessWidget {
 
   Widget _buildMetricTile(String label, String val) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.25),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
-          Text(label, style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.6))),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(label, style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.6))),
+          ),
           const SizedBox(height: 2),
-          Text(val, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(val, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+          ),
         ],
       ),
     );

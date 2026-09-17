@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../models/alert_model.dart';
+import '../../providers/alert_provider.dart';
 import '../../providers/simulation_provider.dart';
 import '../../widgets/feeding_progress_card.dart';
 
@@ -13,11 +15,12 @@ class FeedingScreen extends StatefulWidget {
 
 class _FeedingScreenState extends State<FeedingScreen> {
   bool _isManualMode = false;
-  double _manualTargetKg = 1.0;
+  double _manualTargetKg = 1.20;
 
   @override
   Widget build(BuildContext context) {
     final simProvider = Provider.of<SimulationProvider>(context);
+    final alertProvider = Provider.of<AlertProvider>(context, listen: false);
     final feedPred = simProvider.currentFeedPrediction;
     final blockagePred = simProvider.currentBlockagePrediction;
 
@@ -26,7 +29,7 @@ class _FeedingScreenState extends State<FeedingScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Smart Hay Dispenser Control'),
+        title: const Text('Feed Your Cattle'),
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 14),
@@ -34,7 +37,7 @@ class _FeedingScreenState extends State<FeedingScreen> {
               backgroundColor: AppColors.primaryDark,
               side: const BorderSide(color: AppColors.primaryAccent),
               label: Text(
-                _isManualMode ? 'MANUAL' : 'AI AUTO',
+                _isManualMode ? 'CUSTOM' : 'SMART RECOMMEND',
                 style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryAccent),
               ),
             ),
@@ -62,7 +65,7 @@ class _FeedingScreenState extends State<FeedingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Mode Selection Toggle (Automatic vs Manual)
+                  // Mode Selection Toggle (Smart Recommended vs Custom Quantity)
                   Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
@@ -76,18 +79,21 @@ class _FeedingScreenState extends State<FeedingScreen> {
                           child: GestureDetector(
                             onTap: () => setState(() => _isManualMode = false),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
                               decoration: BoxDecoration(
                                 color: !_isManualMode ? AppColors.primaryAccent : Colors.transparent,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Center(
-                                child: Text(
-                                  '🤖 AI AUTOMATIC DISPENSE',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: !_isManualMode ? AppColors.primaryDark : Colors.white70,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    '🌱 SMART RECOMMENDATION',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: !_isManualMode ? AppColors.primaryDark : Colors.white70,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -98,18 +104,21 @@ class _FeedingScreenState extends State<FeedingScreen> {
                           child: GestureDetector(
                             onTap: () => setState(() => _isManualMode = true),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
                               decoration: BoxDecoration(
                                 color: _isManualMode ? AppColors.primaryAccent : Colors.transparent,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Center(
-                                child: Text(
-                                  '🖐️ MANUAL TARGET SLIDER',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: _isManualMode ? AppColors.primaryDark : Colors.white70,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    '🖐️ CUSTOM QUANTITY',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: _isManualMode ? AppColors.primaryDark : Colors.white70,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -121,57 +130,80 @@ class _FeedingScreenState extends State<FeedingScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // If Manual Mode: Slider from 0.2 kg to 2.0 kg
-                  if (_isManualMode) ...[
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.glassForestCard,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.primaryAccent.withValues(alpha: 0.5)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Select Target Quantity',
-                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
-                              ),
-                              Text(
-                                '${_manualTargetKg.toStringAsFixed(2)} kg',
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.primaryAccent),
-                              ),
-                            ],
-                          ),
-                          Slider(
-                            value: _manualTargetKg,
-                            min: 0.2,
-                            max: 2.0,
-                            divisions: 18,
-                            activeColor: AppColors.primaryAccent,
-                            inactiveColor: Colors.black45,
-                            label: '${_manualTargetKg.toStringAsFixed(2)} kg',
-                            onChanged: (val) {
-                              setState(() => _manualTargetKg = val);
-                            },
-                          ),
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('0.2 kg (Light)', style: TextStyle(fontSize: 10, color: Colors.white60)),
-                              Text('2.0 kg (Heavy)', style: TextStyle(fontSize: 10, color: Colors.white60)),
-                            ],
-                          ),
-                        ],
-                      ),
+                  // Quantity Stepper & Slider
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.glassForestCard,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.primaryAccent.withValues(alpha: 0.5)),
                     ),
-                    const SizedBox(height: 16),
-                  ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _isManualMode ? 'Custom Target Quantity' : 'Recommended Hay Quantity',
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                            Text(
+                              '${targetQty.toStringAsFixed(2)} kg',
+                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.primaryAccent),
+                            ),
+                          ],
+                        ),
+                        if (_isManualMode) ...[
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.remove_circle_outline, color: AppColors.primaryAccent, size: 28),
+                                onPressed: () {
+                                  setState(() {
+                                    if (_manualTargetKg > 0.3) _manualTargetKg -= 0.1;
+                                  });
+                                },
+                              ),
+                              Expanded(
+                                child: Slider(
+                                  value: _manualTargetKg.clamp(0.2, 2.5),
+                                  min: 0.2,
+                                  max: 2.5,
+                                  divisions: 23,
+                                  activeColor: AppColors.primaryAccent,
+                                  inactiveColor: Colors.black45,
+                                  label: '${_manualTargetKg.toStringAsFixed(2)} kg',
+                                  onChanged: (val) {
+                                    setState(() => _manualTargetKg = val);
+                                  },
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.add_circle_outline, color: AppColors.primaryAccent, size: 28),
+                                onPressed: () {
+                                  setState(() {
+                                    if (_manualTargetKg < 2.5) _manualTargetKg += 0.1;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ] else ...[
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Optimized automatically based on current hopper and trough conditions.',
+                            style: TextStyle(fontSize: 11, color: Colors.white70),
+                          ),
+                        ]
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
 
-                  // Live Dispenser Hardware Animation Card
+                  // Live Dispenser Controls Card
                   FeedingProgressCard(
                     targetQuantityKg: targetQty,
                     currentDispensedKg: simProvider.currentDispensedKg,
@@ -181,14 +213,24 @@ class _FeedingScreenState extends State<FeedingScreen> {
                     isFeedingActive: simProvider.isFeedingActive,
                     onStart: () {
                       simProvider.executeFeedingCycle(_isManualMode ? _manualTargetKg : null);
+                      alertProvider.addFarmerNotification(
+                        title: 'Feeding Started',
+                        message: 'Cattle feeding cycle started for ${targetQty.toStringAsFixed(2)} kg.',
+                        type: AlertType.info,
+                      );
                     },
                     onStop: () {
                       simProvider.stopFeedingCycle();
+                      alertProvider.addFarmerNotification(
+                        title: 'Feeding Completed',
+                        message: '${simProvider.currentDispensedKg.toStringAsFixed(2)} kg dispensed to feed trough.',
+                        type: AlertType.info,
+                      );
                     },
                   ),
                   const SizedBox(height: 16),
 
-                  // Real-Time Diagnostic Feed Status Box
+                  // Automatic Feeding Schedule Config (Section 11)
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -199,8 +241,45 @@ class _FeedingScreenState extends State<FeedingScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'AUTOMATIC DAILY SCHEDULE',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primaryAccent,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                            Text('AUTOMATION ON', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.onlineGreen)),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        _buildScheduleRow('Morning Feed', '08:00 AM', '1.20 kg', true),
+                        const Divider(color: Colors.white12, height: 16),
+                        _buildScheduleRow('Afternoon Feed', '01:00 PM', '0.80 kg', true),
+                        const Divider(color: Colors.white12, height: 16),
+                        _buildScheduleRow('Evening Feed', '06:00 PM', '1.40 kg', true),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Real-Time Feed Status Box
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.glassForestCard,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.glassForestBorder),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         const Text(
-                          'ACTUATOR TELEMETRY STATUS',
+                          'DISPENSER SYSTEM STATUS',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -213,24 +292,47 @@ class _FeedingScreenState extends State<FeedingScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Servo Motor (Gate):', style: TextStyle(fontSize: 12, color: Colors.white70)),
-                            Text('${blockagePred.adjustedGateOpeningPercent}% Open', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+                            const Expanded(
+                              child: Text(
+                                'Feed Gate Position:',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 12, color: Colors.white70),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${blockagePred.adjustedGateOpeningPercent.toStringAsFixed(0)}% Open',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 6),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Vibration Motor Status:', style: TextStyle(fontSize: 12, color: Colors.white70)),
-                            Text(blockagePred.vibratorActivated ? 'ACTIVE (Mitigating Blockage)' : 'OFF', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: blockagePred.vibratorActivated ? Colors.orangeAccent : AppColors.onlineGreen)),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Load Cell Weight Rate:', style: TextStyle(fontSize: 12, color: Colors.white70)),
-                            const Text('+0.30 kg/s', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primaryAccent)),
+                            const Expanded(
+                              child: Text(
+                                'Flow Assist:',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 12, color: Colors.white70),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  blockagePred.vibratorActivated ? 'ACTIVE (Assisting Flow)' : 'READY',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: blockagePred.vibratorActivated ? Colors.orangeAccent : AppColors.onlineGreen,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -242,6 +344,38 @@ class _FeedingScreenState extends State<FeedingScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildScheduleRow(String title, String time, String qty, bool isEnabled) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.access_time_rounded, color: AppColors.primaryAccent, size: 18),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                Text(
+                  '$time — $qty',
+                  style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.7)),
+                ),
+              ],
+            ),
+          ],
+        ),
+        Switch(
+          value: isEnabled,
+          activeThumbColor: AppColors.primaryAccent,
+          onChanged: (val) {},
+        ),
+      ],
     );
   }
 }

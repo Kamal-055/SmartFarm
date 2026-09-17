@@ -57,11 +57,11 @@ class GateControlScreen extends StatelessWidget {
                           color: AppColors.surface,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(color: AppColors.border, width: 1.5),
-                          boxShadow: [
+                          boxShadow: const [
                             BoxShadow(
                               color: AppColors.cardShadow,
                               blurRadius: 12,
-                              offset: const Offset(0, 4),
+                              offset: Offset(0, 4),
                             )
                           ],
                         ),

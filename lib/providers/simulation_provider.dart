@@ -26,12 +26,12 @@ class SimulationProvider with ChangeNotifier {
   final FeedPredictionService _feedService = FeedPredictionService();
   final BlockagePredictionService _blockageService = BlockagePredictionService();
 
-  List<CombinedSimulationPair> _dataset = SimulationDataService.pairedDataset;
+  final List<CombinedSimulationPair> _dataset = SimulationDataService.pairedDataset;
   int _currentIndex = 0;
   Timer? _simulationTimer;
   bool _isSimulating = true;
   bool _isPaused = false;
-  int _simulationIntervalSeconds = 3;
+  final int _simulationIntervalSeconds = 3;
 
   // Telemetry state
   late CombinedSimulationPair _currentPair;

@@ -129,29 +129,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          const SizedBox(width: 4),
-                          const Text(
-                            'Create Account',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                      Expanded(
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                              onPressed: () => Navigator.pop(context),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 4),
+                            const Expanded(
+                              child: Text(
+                                'Create Account',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
 
                       // Quick Auto-Fill Test Data Chip Button
                       GestureDetector(
                         onTap: _autoFillTestData,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
                             color: AppColors.warningBackground,
                             borderRadius: BorderRadius.circular(16),
@@ -167,12 +174,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.bolt, color: AppColors.warning, size: 16),
+                              Icon(Icons.bolt, color: AppColors.warning, size: 14),
                               SizedBox(width: 4),
                               Text(
                                 'Auto-Fill',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.warning,
                                 ),

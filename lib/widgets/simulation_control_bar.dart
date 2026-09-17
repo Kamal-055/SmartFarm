@@ -29,39 +29,46 @@ class SimulationControlBar extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Top Header Row
+          // Top Header Row (Responsive)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: provider.isPaused ? AppColors.warning : AppColors.onlineGreen,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: (provider.isPaused ? AppColors.warning : AppColors.onlineGreen).withValues(alpha: 0.6),
-                          blurRadius: 6,
-                          spreadRadius: 1,
-                        )
-                      ],
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: provider.isPaused ? AppColors.warning : AppColors.onlineGreen,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: (provider.isPaused ? AppColors.warning : AppColors.onlineGreen).withValues(alpha: 0.6),
+                            blurRadius: 6,
+                            spreadRadius: 1,
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    provider.isPaused ? 'SIMULATION PAUSED' : 'AI + IoT LIVE SIMULATION',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                      color: provider.isPaused ? AppColors.warning : AppColors.onlineGreen,
-                      letterSpacing: 0.5,
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        provider.isPaused ? 'SIMULATION PAUSED' : 'AI + IoT LIVE SIMULATION',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          color: provider.isPaused ? AppColors.warning : AppColors.onlineGreen,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 6),
 
               // Record Indicator Pill
               Container(
@@ -72,7 +79,7 @@ class SimulationControlBar extends StatelessWidget {
                   border: Border.all(color: AppColors.primaryAccent.withValues(alpha: 0.4)),
                 ),
                 child: Text(
-                  'Record #${provider.currentIndex + 1} / ${provider.totalRecords}',
+                  'Record #${provider.currentIndex + 1}/${provider.totalRecords}',
                   style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -84,96 +91,94 @@ class SimulationControlBar extends StatelessWidget {
           ),
           const SizedBox(height: 10),
 
-          // Action Buttons: Play/Pause, Next Record, Demo 1, Demo 2, Demo 3
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                // Play / Pause Button
-                InkWell(
-                  onTap: () => provider.toggleSimulationState(),
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: provider.isPaused ? AppColors.onlineGreen : Colors.orangeAccent.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: provider.isPaused ? AppColors.onlineGreen : Colors.orangeAccent),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          provider.isPaused ? Icons.play_arrow : Icons.pause,
-                          size: 14,
+          // Action Buttons: Play/Pause, Next Record, Demo 1, Demo 2, Demo 3 wrapped responsively
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            alignment: WrapAlignment.start,
+            children: [
+              // Play / Pause Button
+              InkWell(
+                onTap: () => provider.toggleSimulationState(),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: provider.isPaused ? AppColors.onlineGreen : Colors.orangeAccent.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: provider.isPaused ? AppColors.onlineGreen : Colors.orangeAccent),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        provider.isPaused ? Icons.play_arrow : Icons.pause,
+                        size: 14,
+                        color: provider.isPaused ? AppColors.primaryDark : Colors.orangeAccent,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        provider.isPaused ? 'RESUME' : 'PAUSE STREAM',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
                           color: provider.isPaused ? AppColors.primaryDark : Colors.orangeAccent,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          provider.isPaused ? 'RESUME STREAM' : 'PAUSE STREAM',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: provider.isPaused ? AppColors.primaryDark : Colors.orangeAccent,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
+              ),
 
-                // Next Record Button
-                InkWell(
-                  onTap: () => provider.nextRecord(),
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryDark,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white30),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.skip_next, size: 14, color: Colors.white),
-                        SizedBox(width: 4),
-                        Text(
-                          'NEXT RECORD',
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                      ],
-                    ),
+              // Next Record Button
+              InkWell(
+                onTap: () => provider.nextRecord(),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryDark,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white30),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.skip_next, size: 14, color: Colors.white),
+                      SizedBox(width: 4),
+                      Text(
+                        'NEXT RECORD',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
+              ),
 
-                // DEMO 1 Button (Normal)
-                _buildDemoButton(
-                  context,
-                  label: 'DEMO 1: Normal',
-                  color: AppColors.onlineGreen,
-                  onTap: () => provider.triggerDemoNormal(),
-                ),
-                const SizedBox(width: 6),
+              // DEMO 1 Button (Normal)
+              _buildDemoButton(
+                context,
+                label: 'DEMO 1: Normal',
+                color: AppColors.onlineGreen,
+                onTap: () => provider.triggerDemoNormal(),
+              ),
 
-                // DEMO 2 Button (Moderate Blockage)
-                _buildDemoButton(
-                  context,
-                  label: 'DEMO 2: Moderate Risk',
-                  color: Colors.orangeAccent,
-                  onTap: () => provider.triggerDemoModerateBlockage(),
-                ),
-                const SizedBox(width: 6),
+              // DEMO 2 Button (Moderate Blockage)
+              _buildDemoButton(
+                context,
+                label: 'DEMO 2: Moderate',
+                color: Colors.orangeAccent,
+                onTap: () => provider.triggerDemoModerateBlockage(),
+              ),
 
-                // DEMO 3 Button (Severe Blockage)
-                _buildDemoButton(
-                  context,
-                  label: 'DEMO 3: Severe Risk',
-                  color: Colors.redAccent,
-                  onTap: () => provider.triggerDemoSevereBlockage(),
-                ),
-              ],
-            ),
+              // DEMO 3 Button (Severe Blockage)
+              _buildDemoButton(
+                context,
+                label: 'DEMO 3: Severe',
+                color: Colors.redAccent,
+                onTap: () => provider.triggerDemoSevereBlockage(),
+              ),
+            ],
           ),
         ],
       ),

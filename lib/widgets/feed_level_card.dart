@@ -49,7 +49,7 @@ class FeedLevelCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.15),
+                      color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -71,14 +71,14 @@ class FeedLevelCard extends StatelessWidget {
                 children: [
                   Text(
                     '$level%',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
+                  const Text(
                     'remaining in bin',
                     style: TextStyle(
                       fontSize: 14,

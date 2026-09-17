@@ -29,37 +29,44 @@ class PrototypeDiagramWidget extends StatelessWidget {
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(Icons.developer_board, color: AppColors.primaryAccent, size: 22),
-                  SizedBox(width: 8),
-                  Text(
-                    'Hardware Prototype System Overview',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(Icons.schema_outlined, color: AppColors.primaryAccent, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Smart Cattle Feeder — How It Works',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              SizedBox(width: 6),
               Chip(
                 backgroundColor: AppColors.primaryDark,
                 side: BorderSide(color: AppColors.primaryAccent),
                 padding: EdgeInsets.zero,
                 label: Text(
-                  'ESP32 IoT',
+                  'AUTOMATIC',
                   style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryAccent),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
 
-          // Central ESP32 Microcontroller Box
+          // Central Smart Feeder Hub Box
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -80,36 +87,42 @@ class PrototypeDiagramWidget extends StatelessWidget {
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.memory, color: AppColors.primaryAccent, size: 28),
-                SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'ESP32 Microcontroller Core',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
-                    Text(
-                      'FreeRTOS Telemetry Streamer & Servo Controller',
-                      style: TextStyle(fontSize: 11, color: AppColors.primaryAccent),
-                    ),
-                  ],
+                Icon(Icons.auto_awesome, color: AppColors.primaryAccent, size: 26),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Smart Cattle Feeder Controller',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      Text(
+                        'Automatic Dispenser & Cattle Feeding Assistant',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 10, color: AppColors.primaryAccent),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
 
-          // Hardware Flow Diagram Steps
-          _buildDiagramNode('1. GRAVITY HOPPER', 'Ultrasonic HC-SR04 measures level', Icons.inventory_2_outlined, Colors.amberAccent),
+          // Flow Diagram Steps
+          _buildDiagramNode('1. FODDER STORAGE BIN', 'Monitors hay remaining depth & capacity', Icons.inventory_2_outlined, Colors.amberAccent),
           _buildArrowDown(),
-          _buildDiagramNode('2. SLIDING DISPENSE GATE', 'Servo Motor (MG996R) controls opening %', Icons.door_sliding_outlined, Colors.cyanAccent),
+          _buildDiagramNode('2. AUTOMATIC FEED GATE', 'Opens precisely to release required hay quantity', Icons.door_sliding_outlined, Colors.cyanAccent),
           _buildArrowDown(),
-          _buildDiagramNode('3. HAY FLOW CHANNEL', 'IR Break Beam Sensor detects flow & blockage', Icons.sensors, Colors.orangeAccent),
+          _buildDiagramNode('3. FLOW ASSIST SENSOR', 'Monitors hay movement & assists flow if needed', Icons.sensors, Colors.orangeAccent),
           _buildArrowDown(),
-          _buildDiagramNode('4. CATTLE TROUGH', 'Load Cell + HX711 24-bit ADC measures weight', Icons.scale_outlined, Colors.lightGreenAccent),
+          _buildDiagramNode('4. CATTLE TROUGH SCALE', 'Weighs feed in real-time for precise consumption', Icons.scale_outlined, Colors.lightGreenAccent),
           _buildArrowDown(),
-          _buildDiagramNode('5. AI ENGINE & APP', 'Adaptive Quantity Regressor & Risk Classifier', Icons.psychology, Colors.purpleAccent),
+          _buildDiagramNode('5. SMART FARMER APP', 'Recommends exact portions & alerts farmer instantly', Icons.mobile_friendly, Colors.purpleAccent),
         ],
       ),
     );

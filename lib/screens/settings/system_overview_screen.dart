@@ -10,7 +10,7 @@ class SystemOverviewScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('IoT Hardware Architecture'),
+        title: const Text('How Smart Feeding Works'),
       ),
       body: Stack(
         children: [

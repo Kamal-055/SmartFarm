@@ -13,6 +13,7 @@ import 'providers/farm_provider.dart';
 import 'providers/history_provider.dart';
 import 'providers/schedule_provider.dart';
 import 'providers/settings_provider.dart';
+import 'providers/simulation_provider.dart';
 import 'screens/splash_screen.dart';
 
 void main() async {
@@ -43,6 +44,7 @@ class SmartFodderApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ScheduleProvider()),
         ChangeNotifierProvider(create: (_) => HistoryProvider()),
         ChangeNotifierProvider(create: (_) => AlertProvider()),
+        ChangeNotifierProvider(create: (_) => SimulationProvider()),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, child) {

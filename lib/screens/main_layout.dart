@@ -7,11 +7,10 @@ import '../providers/device_provider.dart';
 import '../providers/history_provider.dart';
 import '../providers/schedule_provider.dart';
 import '../providers/settings_provider.dart';
-import '../widgets/custom_dialogs.dart';
 import 'alerts/alerts_screen.dart';
+import 'analytics/analytics_screen.dart';
 import 'dashboard/dashboard_screen.dart';
-import 'history/history_screen.dart';
-import 'schedule/schedule_screen.dart';
+import 'feeding/feeding_screen.dart';
 import 'settings/settings_screen.dart';
 
 class MainLayout extends StatefulWidget {
@@ -45,17 +44,16 @@ class _MainLayoutState extends State<MainLayout> {
 
   final List<Widget> _pages = const [
     DashboardScreen(),
-    ScheduleScreen(),
-    HistoryScreen(),
+    FeedingScreen(),
+    AnalyticsScreen(),
+    AlertsScreen(),
     SettingsScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final alertProvider = Provider.of<AlertProvider>(context);
-
     return Scaffold(
-      extendBody: true, // Allows floating navbar to sit over background seamlessly
+      extendBody: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -76,8 +74,8 @@ class _MainLayoutState extends State<MainLayout> {
                 borderRadius: BorderRadius.circular(10),
                 child: Image.asset(
                   'assets/images/logo.png',
-                  width: 36,
-                  height: 36,
+                  width: 34,
+                  height: 34,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -87,7 +85,7 @@ class _MainLayoutState extends State<MainLayout> {
               AppConstants.appName,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 20,
+                fontSize: 18,
                 color: AppColors.textPrimary,
                 letterSpacing: 0.5,
               ),
@@ -95,44 +93,15 @@ class _MainLayoutState extends State<MainLayout> {
           ],
         ),
         actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications_outlined, size: 28, color: AppColors.textPrimary),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const AlertsScreen()),
-                  );
-                },
-              ),
-              if (alertProvider.unreadCount > 0)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: AppColors.error,
-                      shape: BoxShape.circle,
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 18,
-                      minHeight: 18,
-                    ),
-                    child: Text(
-                      '${alertProvider.unreadCount}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-            ],
+          IconButton(
+            icon: const Icon(Icons.analytics_outlined, size: 24, color: AppColors.textPrimary),
+            onPressed: () => setState(() => _currentIndex = 2),
           ),
-          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined, size: 24, color: AppColors.textPrimary),
+            onPressed: () => setState(() => _currentIndex = 3),
+          ),
+          const SizedBox(width: 6),
         ],
       ),
       body: IndexedStack(
@@ -140,12 +109,12 @@ class _MainLayoutState extends State<MainLayout> {
         children: _pages,
       ),
 
-      // Ultra-Modern Floating Glass Pill Navigation Bar (Matching Reference Image)
+      // Master 5-Tab Floating Glass Navigation Bar (Dashboard, Feeding, Analytics, Alerts, Profile)
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 68,
-          margin: const EdgeInsets.only(left: 20, right: 20, bottom: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          margin: const EdgeInsets.only(left: 14, right: 14, bottom: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: AppColors.glassForestCard,
             borderRadius: BorderRadius.circular(36),
@@ -155,7 +124,7 @@ class _MainLayoutState extends State<MainLayout> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.25),
+                color: Colors.black.withValues(alpha: 0.3),
                 blurRadius: 18,
                 offset: const Offset(0, 8),
               ),
@@ -164,49 +133,11 @@ class _MainLayoutState extends State<MainLayout> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(0, Icons.home_rounded, Icons.home_outlined, 'Home'),
-              _buildNavItem(1, Icons.schedule_rounded, Icons.schedule_outlined, 'Schedule'),
-              
-              // Central Quick Action Button (+) matching reference UI
-              GestureDetector(
-                onTap: () async {
-                  final scheduleProvider = Provider.of<ScheduleProvider>(context, listen: false);
-                  final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
-                  final result = await CustomDialogs.showAddScheduleDialog(context);
-                  if (result != null) {
-                    scheduleProvider.addSchedule(
-                      deviceId: settingsProvider.activeDeviceId,
-                      name: result['name'],
-                      timeOfDay: result['timeOfDay'],
-                      durationSeconds: result['durationSeconds'],
-                      isMockMode: settingsProvider.isMockMode,
-                    );
-                  }
-                },
-                child: Container(
-                  width: 46,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryAccent,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryAccent.withValues(alpha: 0.5),
-                        blurRadius: 12,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.add_rounded,
-                    color: AppColors.primaryDark,
-                    size: 28,
-                  ),
-                ),
-              ),
-
-              _buildNavItem(2, Icons.history_rounded, Icons.history_outlined, 'History'),
-              _buildNavItem(3, Icons.settings_rounded, Icons.settings_outlined, 'Settings'),
+              _buildNavItem(0, Icons.grid_view_rounded, Icons.grid_view_outlined, 'Dashboard'),
+              _buildNavItem(1, Icons.precision_manufacturing_rounded, Icons.precision_manufacturing_outlined, 'Feeding'),
+              _buildNavItem(2, Icons.analytics_rounded, Icons.analytics_outlined, 'Analytics'),
+              _buildNavItem(3, Icons.notifications_rounded, Icons.notifications_outlined, 'Alerts'),
+              _buildNavItem(4, Icons.person_rounded, Icons.person_outlined, 'Profile'),
             ],
           ),
         ),
@@ -221,10 +152,24 @@ class _MainLayoutState extends State<MainLayout> {
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Icon(
-          isSelected ? activeIcon : inactiveIcon,
-          size: 26,
-          color: isSelected ? AppColors.primaryAccent : Colors.white.withValues(alpha: 0.6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? activeIcon : inactiveIcon,
+              size: 22,
+              color: isSelected ? AppColors.primaryAccent : Colors.white.withValues(alpha: 0.6),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? AppColors.primaryAccent : Colors.white.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
         ),
       ),
     );

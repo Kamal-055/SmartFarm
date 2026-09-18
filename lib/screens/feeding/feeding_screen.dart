@@ -32,23 +32,7 @@ class _FeedingScreenState extends State<FeedingScreen> {
     final targetQty = _isManualMode ? _manualTargetKg : feedPred.predictedQuantityKg;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Feed Your Cattle'),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 14),
-            child: Chip(
-              backgroundColor: AppColors.primaryDark,
-              side: const BorderSide(color: AppColors.primaryAccent),
-              label: Text(
-                _isManualMode ? 'CUSTOM' : 'SMART RECOMMEND',
-                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryAccent),
-              ),
-            ),
-          ),
-        ],
-      ),
+      backgroundColor: AppColors.primaryDark,
       body: Stack(
         children: [
           // Background AI Aerial Farm Image with Dark Overlay
@@ -56,6 +40,7 @@ class _FeedingScreenState extends State<FeedingScreen> {
             child: Image.asset(
               'assets/images/aerial_farm_bg.png',
               fit: BoxFit.cover,
+              errorBuilder: (ctx, err, stack) => const SizedBox.shrink(),
             ),
           ),
           Positioned.fill(

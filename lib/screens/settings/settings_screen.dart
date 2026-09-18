@@ -23,10 +23,7 @@ class SettingsScreen extends StatelessWidget {
     final farmName = farmProvider.farm.name;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Farm Profile & Preferences'),
-      ),
+      backgroundColor: AppColors.primaryDark,
       body: Stack(
         children: [
           // Background AI Aerial Farm Image with Dark Overlay
@@ -34,6 +31,7 @@ class SettingsScreen extends StatelessWidget {
             child: Image.asset(
               'assets/images/aerial_farm_bg.png',
               fit: BoxFit.cover,
+              errorBuilder: (ctx, err, stack) => const SizedBox.shrink(),
             ),
           ),
           Positioned.fill(

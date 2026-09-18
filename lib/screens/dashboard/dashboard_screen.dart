@@ -31,7 +31,7 @@ class DashboardScreen extends StatelessWidget {
     final nextSch = scheduleProvider.nextUpcomingSchedule;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.primaryDark,
       body: Stack(
         children: [
           // Background AI Aerial Farm Image with Dark Overlay
@@ -39,6 +39,7 @@ class DashboardScreen extends StatelessWidget {
             child: Image.asset(
               'assets/images/aerial_farm_bg.png',
               fit: BoxFit.cover,
+              errorBuilder: (ctx, err, stack) => const SizedBox.shrink(),
             ),
           ),
           Positioned.fill(

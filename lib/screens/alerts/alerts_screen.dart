@@ -29,25 +29,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
           }).toList();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Farm Notifications'),
-        actions: [
-          if (alertProvider.unreadCount > 0)
-            TextButton.icon(
-              onPressed: () => alertProvider.markAllAsRead(),
-              icon: const Icon(Icons.done_all, color: AppColors.primaryAccent, size: 18),
-              label: const Text('Mark Read', style: TextStyle(color: AppColors.primaryAccent, fontSize: 12)),
-            ),
-          IconButton(
-            tooltip: 'Clear All',
-            icon: const Icon(Icons.delete_sweep_outlined),
-            onPressed: () {
-              alertProvider.clearAll('DEV_DEVICE', true);
-            },
-          ),
-        ],
-      ),
+      backgroundColor: AppColors.primaryDark,
       body: Stack(
         children: [
           // Background AI Aerial Farm Image with Dark Overlay
@@ -55,6 +37,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
             child: Image.asset(
               'assets/images/aerial_farm_bg.png',
               fit: BoxFit.cover,
+              errorBuilder: (ctx, err, stack) => const SizedBox.shrink(),
             ),
           ),
           Positioned.fill(
@@ -69,6 +52,34 @@ class _AlertsScreenState extends State<AlertsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Action Header Strip (Mark Read & Clear)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'FARM NOTIFICATIONS',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white70, letterSpacing: 0.8),
+                      ),
+                      Row(
+                        children: [
+                          if (alertProvider.unreadCount > 0)
+                            TextButton.icon(
+                              onPressed: () => alertProvider.markAllAsRead(),
+                              icon: const Icon(Icons.done_all, color: AppColors.primaryAccent, size: 16),
+                              label: const Text('Mark Read', style: TextStyle(color: AppColors.primaryAccent, fontSize: 11)),
+                            ),
+                          IconButton(
+                            tooltip: 'Clear All',
+                            icon: const Icon(Icons.delete_sweep_outlined, color: Colors.white70, size: 20),
+                            onPressed: () {
+                              alertProvider.clearAll('DEV_DEVICE', true);
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   // Filter Chips
                   Wrap(
                     spacing: 8,

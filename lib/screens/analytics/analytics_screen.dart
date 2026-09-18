@@ -19,10 +19,7 @@ class AnalyticsScreen extends StatelessWidget {
     final flowAssistedCount = historyProvider.todayFlowAssistedCount;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Farm Insights'),
-      ),
+      backgroundColor: AppColors.primaryDark,
       body: Stack(
         children: [
           // Background AI Aerial Farm Image with Dark Overlay
@@ -30,6 +27,7 @@ class AnalyticsScreen extends StatelessWidget {
             child: Image.asset(
               'assets/images/aerial_farm_bg.png',
               fit: BoxFit.cover,
+              errorBuilder: (ctx, err, stack) => const SizedBox.shrink(),
             ),
           ),
           Positioned.fill(

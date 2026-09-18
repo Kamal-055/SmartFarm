@@ -73,9 +73,10 @@ class _MainLayoutState extends State<MainLayout> {
     final toastAlert = alertProvider.latestToastAlert;
 
     return Scaffold(
+      backgroundColor: AppColors.primaryDark,
       extendBody: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.primaryDark,
         elevation: 0,
         title: Row(
           children: [
@@ -97,6 +98,7 @@ class _MainLayoutState extends State<MainLayout> {
                   width: 34,
                   height: 34,
                   fit: BoxFit.cover,
+                  errorBuilder: (ctx, err, stack) => const Icon(Icons.grass, color: AppColors.primaryAccent),
                 ),
               ),
             ),
@@ -109,7 +111,7 @@ class _MainLayoutState extends State<MainLayout> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: AppColors.textPrimary,
+                  color: Colors.white,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -118,14 +120,14 @@ class _MainLayoutState extends State<MainLayout> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.show_chart_rounded, size: 22, color: AppColors.textPrimary),
+            icon: const Icon(Icons.show_chart_rounded, size: 22, color: Colors.white),
             onPressed: () => setState(() => _currentIndex = 2),
           ),
           Stack(
             alignment: Alignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.notifications_outlined, size: 22, color: AppColors.textPrimary),
+                icon: const Icon(Icons.notifications_outlined, size: 22, color: Colors.white),
                 onPressed: () => setState(() => _currentIndex = 3),
               ),
               if (unreadCount > 0)

@@ -23,186 +23,178 @@ class _AlertsScreenState extends State<AlertsScreen> {
         ? alerts
         : alerts.where((a) {
             if (_selectedCategory == 'Feeding') return a.title.contains('Feed') || a.title.contains('Dispense');
-            if (_selectedCategory == 'Flow') return a.title.contains('Flow') || a.title.contains('Blockage');
-            if (_selectedCategory == 'Storage') return a.title.contains('Storage') || a.title.contains('Hopper');
+            if (_selectedCategory == 'Fodder') return a.title.contains('Fodder') || a.title.contains('Storage') || a.title.contains('Refill');
+            if (_selectedCategory == 'Alerts') return a.type == AlertType.critical || a.type == AlertType.warning;
             return true;
           }).toList();
 
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
-      body: Stack(
-        children: [
-          // Background AI Aerial Farm Image with Dark Overlay
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/aerial_farm_bg.png',
-              fit: BoxFit.cover,
-              errorBuilder: (ctx, err, stack) => const SizedBox.shrink(),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Notifications'),
+        actions: [
+          if (alertProvider.unreadCount > 0)
+            TextButton(
+              onPressed: () => alertProvider.markAllAsRead(),
+              child: const Text('Mark Read', style: TextStyle(color: AppColors.primaryMedium, fontSize: 12, fontWeight: FontWeight.bold)),
             ),
-          ),
-          Positioned.fill(
-            child: Container(
-              color: AppColors.primaryDark.withValues(alpha: 0.88),
-            ),
-          ),
-
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(left: 14, right: 14, top: 12, bottom: 120),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Action Header Strip (Mark Read & Clear)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'FARM NOTIFICATIONS',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white70, letterSpacing: 0.8),
+        ],
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(left: 18, right: 18, top: 12, bottom: 110),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Filter Chips (All, Feeding, Fodder, Alerts)
+              Row(
+                children: ['All', 'Feeding', 'Fodder', 'Alerts'].map((cat) {
+                  final isSel = _selectedCategory == cat;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text(cat),
+                      selected: isSel,
+                      selectedColor: AppColors.primaryMedium,
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: isSel ? AppColors.primaryMedium : AppColors.border),
+                      labelStyle: TextStyle(
+                        color: isSel ? Colors.white : AppColors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
                       ),
-                      Row(
-                        children: [
-                          if (alertProvider.unreadCount > 0)
-                            TextButton.icon(
-                              onPressed: () => alertProvider.markAllAsRead(),
-                              icon: const Icon(Icons.done_all, color: AppColors.primaryAccent, size: 16),
-                              label: const Text('Mark Read', style: TextStyle(color: AppColors.primaryAccent, fontSize: 11)),
-                            ),
-                          IconButton(
-                            tooltip: 'Clear All',
-                            icon: const Icon(Icons.delete_sweep_outlined, color: Colors.white70, size: 20),
-                            onPressed: () {
-                              alertProvider.clearAll('DEV_DEVICE', true);
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // Filter Chips
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: ['All', 'Feeding', 'Flow', 'Storage'].map((cat) {
-                      final isSel = _selectedCategory == cat;
-                      return ChoiceChip(
-                        label: Text(cat),
-                        selected: isSel,
-                        selectedColor: AppColors.primaryAccent,
-                        backgroundColor: AppColors.glassForestCard,
-                        labelStyle: TextStyle(
-                          color: isSel ? AppColors.primaryDark : Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                        onSelected: (val) {
-                          if (val) setState(() => _selectedCategory = cat);
-                        },
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-
-                  if (filteredAlerts.isEmpty)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(32),
-                      decoration: BoxDecoration(
-                        color: AppColors.glassForestCard,
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                      child: const Column(
-                        children: [
-                          Icon(Icons.notifications_off_outlined, color: Colors.white54, size: 48),
-                          SizedBox(height: 12),
-                          Text('No Farm Notifications', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 4),
-                          Text('All feeding systems are running smoothly.', style: TextStyle(color: Colors.white60, fontSize: 12)),
-                        ],
-                      ),
-                    )
-                  else
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: filteredAlerts.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        final item = filteredAlerts[index];
-                        Color sevColor;
-                        IconData icon;
-
-                        switch (item.type) {
-                          case AlertType.critical:
-                            sevColor = AppColors.error;
-                            icon = Icons.report_problem;
-                            break;
-                          case AlertType.warning:
-                            sevColor = Colors.orangeAccent;
-                            icon = Icons.warning_amber;
-                            break;
-                          case AlertType.info:
-                            sevColor = AppColors.onlineGreen;
-                            icon = Icons.check_circle_outline;
-                            break;
-                        }
-
-                        return Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: item.read ? AppColors.glassForestCard : AppColors.glassForestCard.withValues(alpha: 0.9),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: item.read ? sevColor.withValues(alpha: 0.3) : sevColor,
-                              width: item.read ? 1.0 : 1.5,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        Icon(icon, color: sevColor, size: 18),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            item.title,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.bold,
-                                              color: sevColor,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    _formatTime(item.timestamp),
-                                    style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.6)),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(item.message, style: const TextStyle(fontSize: 12, color: Colors.white)),
-                            ],
-                          ),
-                        );
+                      onSelected: (val) {
+                        if (val) setState(() => _selectedCategory = cat);
                       },
                     ),
-                ],
+                  );
+                }).toList(),
               ),
-            ),
+              const SizedBox(height: 16),
+
+              if (filteredAlerts.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: const Column(
+                    children: [
+                      Icon(Icons.notifications_off_outlined, color: AppColors.textMuted, size: 48),
+                      SizedBox(height: 12),
+                      Text('No Notifications', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
+                      SizedBox(height: 4),
+                      Text('All systems are operating normally.', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                    ],
+                  ),
+                )
+              else
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: filteredAlerts.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final item = filteredAlerts[index];
+                    Color iconBg;
+                    Color iconColor;
+                    IconData icon;
+
+                    switch (item.type) {
+                      case AlertType.critical:
+                        iconBg = Colors.red.shade100;
+                        iconColor = Colors.red.shade700;
+                        icon = Icons.warning_amber_rounded;
+                        break;
+                      case AlertType.warning:
+                        iconBg = Colors.amber.shade100;
+                        iconColor = Colors.amber.shade800;
+                        icon = Icons.sensors_rounded;
+                        break;
+                      case AlertType.info:
+                        iconBg = AppColors.primaryLight;
+                        iconColor = AppColors.primaryMedium;
+                        icon = Icons.check_circle_rounded;
+                        break;
+                    }
+
+                    return Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: item.read ? AppColors.border : AppColors.primaryAccent),
+                        boxShadow: const [
+                          BoxShadow(color: AppColors.cardShadow, blurRadius: 10, offset: Offset(0, 3)),
+                        ],
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: iconBg,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(icon, color: iconColor, size: 20),
+                          ),
+                          const SizedBox(width: 12),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        item.title,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      ),
+                                    ),
+                                    if (!item.read)
+                                      Container(
+                                        width: 8,
+                                        height: 8,
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.onlineGreen,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  item.message,
+                                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  _formatTime(item.timestamp),
+                                  style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -215,3 +207,4 @@ class _AlertsScreenState extends State<AlertsScreen> {
     return '${diff.inDays}d ago';
   }
 }
+

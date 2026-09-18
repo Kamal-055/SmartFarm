@@ -7,103 +7,112 @@ class PrototypeDiagramWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.glassForestCard,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: AppColors.primaryAccent.withValues(alpha: 0.4),
-          width: 1.2,
-        ),
-        boxShadow: [
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+            color: AppColors.cardShadow,
+            blurRadius: 12,
+            offset: Offset(0, 4),
           )
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Diagram Header
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Header
+          Row(
             children: [
-              Expanded(
-                child: Row(
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.schema_rounded, color: AppColors.primary, size: 24),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.schema_outlined, color: AppColors.primaryAccent, size: 20),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Smart Cattle Feeder — How It Works',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                    Text(
+                      'Smart Cattle Feeder',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      'How Gravity Fodder Dispenser Works',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(width: 6),
-              Chip(
-                backgroundColor: AppColors.primaryDark,
-                side: BorderSide(color: AppColors.primaryAccent),
-                padding: EdgeInsets.zero,
-                label: Text(
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.secondaryLight,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
                   'AUTOMATIC',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryAccent),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.secondary,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 20),
 
-          // Central Smart Feeder Hub Box
+          // Central Feeder Control Banner
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primaryDark,
-                  AppColors.primary.withValues(alpha: 0.8),
-                ],
-              ),
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.primaryAccent, width: 1.5),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primaryAccent.withValues(alpha: 0.3),
-                  blurRadius: 10,
-                  spreadRadius: 1,
-                )
+                  color: AppColors.primary.withValues(alpha: 0.25),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
               ],
             ),
             child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.auto_awesome, color: AppColors.primaryAccent, size: 26),
-                SizedBox(width: 10),
+                Icon(Icons.auto_awesome, color: Colors.white, size: 28),
+                SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Smart Cattle Feeder Controller',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                        'Intelligent Control Unit',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
+                      SizedBox(height: 2),
                       Text(
-                        'Automatic Dispenser & Cattle Feeding Assistant',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 10, color: AppColors.primaryAccent),
+                        'Automated Fodder Portioning & Cattle Monitoring',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.white70,
+                        ),
                       ),
                     ],
                   ),
@@ -111,53 +120,117 @@ class PrototypeDiagramWidget extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
-          // Flow Diagram Steps
-          _buildDiagramNode('1. FODDER STORAGE BIN', 'Monitors hay remaining depth & capacity', Icons.inventory_2_outlined, Colors.amberAccent),
-          _buildArrowDown(),
-          _buildDiagramNode('2. AUTOMATIC FEED GATE', 'Opens precisely to release required hay quantity', Icons.door_sliding_outlined, Colors.cyanAccent),
-          _buildArrowDown(),
-          _buildDiagramNode('3. FLOW ASSIST SENSOR', 'Monitors hay movement & assists flow if needed', Icons.sensors, Colors.orangeAccent),
-          _buildArrowDown(),
-          _buildDiagramNode('4. CATTLE TROUGH SCALE', 'Weighs feed in real-time for precise consumption', Icons.scale_outlined, Colors.lightGreenAccent),
-          _buildArrowDown(),
-          _buildDiagramNode('5. SMART FARMER APP', 'Recommends exact portions & alerts farmer instantly', Icons.mobile_friendly, Colors.purpleAccent),
+          // Flow Steps
+          _buildDiagramNode(
+            step: '1',
+            title: 'Fodder Storage Bin',
+            subtitle: 'Stores dry fodder & monitors level with sensors',
+            icon: Icons.inventory_2_rounded,
+            color: AppColors.secondary,
+          ),
+          _buildConnectorLine(),
+          _buildDiagramNode(
+            step: '2',
+            title: 'Motorized Feed Gate',
+            subtitle: 'Opens precisely to release prescribed portion',
+            icon: Icons.door_sliding_rounded,
+            color: AppColors.primary,
+          ),
+          _buildConnectorLine(),
+          _buildDiagramNode(
+            step: '3',
+            title: 'Feed-Flow Sensor',
+            subtitle: 'Detects hay blockage & triggers flow assistant',
+            icon: Icons.sensors_rounded,
+            color: const Color(0xFF0EA5E9),
+          ),
+          _buildConnectorLine(),
+          _buildDiagramNode(
+            step: '4',
+            title: 'Cattle Trough Scale',
+            subtitle: 'Measures exact dispensed weight in real-time',
+            icon: Icons.scale_rounded,
+            color: AppColors.secondary,
+          ),
+          _buildConnectorLine(),
+          _buildDiagramNode(
+            step: '5',
+            title: 'FodderFlow Mobile App',
+            subtitle: 'Calculates optimal portion & alerts farmer instantly',
+            icon: Icons.mobile_friendly_rounded,
+            color: const Color(0xFF8B5CF6),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDiagramNode(String title, String subtitle, IconData icon, Color color) {
+  Widget _buildDiagramNode({
+    required String step,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.25),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
+              color: color.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: color, size: 18),
+            child: Center(
+              child: Icon(icon, color: color, size: 20),
+            ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color),
+                Row(
+                  children: [
+                    Text(
+                      'STEP $step: ',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.8)),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -167,10 +240,21 @@ class PrototypeDiagramWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildArrowDown() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
-      child: Icon(Icons.arrow_downward_rounded, color: AppColors.primaryAccent, size: 18),
+  Widget _buildConnectorLine() {
+    return Container(
+      margin: const EdgeInsets.only(left: 32),
+      height: 16,
+      child: Row(
+        children: [
+          Container(
+            width: 2,
+            height: 16,
+            color: AppColors.primary.withValues(alpha: 0.3),
+          ),
+          const SizedBox(width: 8),
+          const Icon(Icons.arrow_downward_rounded, color: AppColors.primary, size: 14),
+        ],
+      ),
     );
   }
 }

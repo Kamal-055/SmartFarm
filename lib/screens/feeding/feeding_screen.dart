@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../models/alert_model.dart';
 import '../../providers/alert_provider.dart';
+import '../../providers/fodder_inventory_provider.dart';
+import '../../providers/history_provider.dart';
+import '../../providers/schedule_provider.dart';
 import '../../providers/simulation_provider.dart';
 import '../../widgets/feeding_progress_card.dart';
 
@@ -20,10 +22,13 @@ class _FeedingScreenState extends State<FeedingScreen> {
   @override
   Widget build(BuildContext context) {
     final simProvider = Provider.of<SimulationProvider>(context);
+    final inventoryProvider = Provider.of<FodderInventoryProvider>(context);
+    final scheduleProvider = Provider.of<ScheduleProvider>(context);
     final alertProvider = Provider.of<AlertProvider>(context, listen: false);
+    final historyProvider = Provider.of<HistoryProvider>(context, listen: false);
+
     final feedPred = simProvider.currentFeedPrediction;
     final blockagePred = simProvider.currentBlockagePrediction;
-
     final targetQty = _isManualMode ? _manualTargetKg : feedPred.predictedQuantityKg;
 
     return Scaffold(
@@ -212,25 +217,29 @@ class _FeedingScreenState extends State<FeedingScreen> {
                     gateTimeSeconds: feedPred.estimatedGateTimeSeconds,
                     isFeedingActive: simProvider.isFeedingActive,
                     onStart: () {
-                      simProvider.executeFeedingCycle(_isManualMode ? _manualTargetKg : null);
-                      alertProvider.addFarmerNotification(
-                        title: 'Feeding Started',
-                        message: 'Cattle feeding cycle started for ${targetQty.toStringAsFixed(2)} kg.',
-                        type: AlertType.info,
+                      final success = simProvider.executeFeedingCycle(
+                        inventoryProvider: inventoryProvider,
+                        historyProvider: historyProvider,
+                        alertProvider: alertProvider,
+                        manualTargetKg: _isManualMode ? _manualTargetKg : null,
                       );
+
+                      if (!success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Not enough fodder available in hopper. Please refill!'),
+                            backgroundColor: Colors.redAccent,
+                          ),
+                        );
+                      }
                     },
                     onStop: () {
                       simProvider.stopFeedingCycle();
-                      alertProvider.addFarmerNotification(
-                        title: 'Feeding Completed',
-                        message: '${simProvider.currentDispensedKg.toStringAsFixed(2)} kg dispensed to feed trough.',
-                        type: AlertType.info,
-                      );
                     },
                   ),
                   const SizedBox(height: 16),
 
-                  // Automatic Feeding Schedule Config (Section 11)
+                  // Automatic Feeding Schedule Config (Dynamic from ScheduleProvider)
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -253,15 +262,50 @@ class _FeedingScreenState extends State<FeedingScreen> {
                                 letterSpacing: 0.8,
                               ),
                             ),
-                            Text('AUTOMATION ON', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.onlineGreen)),
+                            Text('AUTOMATION ACTIVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.onlineGreen)),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        _buildScheduleRow('Morning Feed', '08:00 AM', '1.20 kg', true),
-                        const Divider(color: Colors.white12, height: 16),
-                        _buildScheduleRow('Afternoon Feed', '01:00 PM', '0.80 kg', true),
-                        const Divider(color: Colors.white12, height: 16),
-                        _buildScheduleRow('Evening Feed', '06:00 PM', '1.40 kg', true),
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: scheduleProvider.schedules.length,
+                          separatorBuilder: (_, __) => const Divider(color: Colors.white12, height: 16),
+                          itemBuilder: (context, index) {
+                            final sch = scheduleProvider.schedules[index];
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.access_time_rounded, color: AppColors.primaryAccent, size: 18),
+                                    const SizedBox(width: 8),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          sch.name,
+                                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                                        ),
+                                        Text(
+                                          '${sch.time} — ${sch.targetQtyKg.toStringAsFixed(2)} kg',
+                                          style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.7)),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                Switch(
+                                  value: sch.enabled,
+                                  activeThumbColor: AppColors.primaryAccent,
+                                  onChanged: (val) {
+                                    scheduleProvider.toggleSchedule(sch);
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -344,38 +388,6 @@ class _FeedingScreenState extends State<FeedingScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildScheduleRow(String title, String time, String qty, bool isEnabled) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.access_time_rounded, color: AppColors.primaryAccent, size: 18),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                Text(
-                  '$time — $qty',
-                  style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.7)),
-                ),
-              ],
-            ),
-          ],
-        ),
-        Switch(
-          value: isEnabled,
-          activeThumbColor: AppColors.primaryAccent,
-          onChanged: (val) {},
-        ),
-      ],
     );
   }
 }

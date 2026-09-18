@@ -128,18 +128,10 @@ class ScheduleScreen extends StatelessWidget {
                                     child: ScheduleCard(
                                       schedule: sch,
                                       onToggle: (val) {
-                                        scheduleProvider.toggleSchedule(
-                                          deviceId: deviceId,
-                                          schedule: sch,
-                                          isMockMode: isMock,
-                                        );
+                                        scheduleProvider.toggleSchedule(sch);
                                       },
                                       onDelete: () {
-                                        scheduleProvider.deleteSchedule(
-                                          deviceId: deviceId,
-                                          scheduleId: sch.id,
-                                          isMockMode: isMock,
-                                        );
+                                        scheduleProvider.deleteSchedule(sch.id);
                                       },
                                     ),
                                   );

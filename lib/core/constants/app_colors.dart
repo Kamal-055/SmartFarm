@@ -13,6 +13,8 @@ class AppColors {
   static const Color secondary = Color(0xFFD97706); // Warm Golden Wheat
   static const Color secondaryDark = Color(0xFF92400E); // Deep Earth Brown
   static const Color secondaryLight = Color(0xFFFEF3C7); // Warm Cream Gold
+  static const Color wheatGolden = Color(0xFFD97706);
+  static const Color wheatDark = Color(0xFF92400E);
 
   // Farmer Card & Glass Surfaces
   static const Color glassForestCard = Color(0xF70E3020); // Premium Soft Forest Card

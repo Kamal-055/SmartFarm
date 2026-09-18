@@ -5,6 +5,10 @@ class FeedingRecord {
   final String type; // "Manual" or "Scheduled"
   final String status; // "Completed", "Failed", "Interrupted"
   final int durationSeconds;
+  final double targetQuantityKg;
+  final double actualQuantityKg;
+  final double remainingFodderKg;
+  final bool flowAssisted;
 
   FeedingRecord({
     required this.id,
@@ -13,6 +17,10 @@ class FeedingRecord {
     required this.type,
     required this.status,
     required this.durationSeconds,
+    this.targetQuantityKg = 1.20,
+    this.actualQuantityKg = 1.18,
+    this.remainingFodderKg = 8.82,
+    this.flowAssisted = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +31,10 @@ class FeedingRecord {
       'type': type,
       'status': status,
       'durationSeconds': durationSeconds,
+      'targetQuantityKg': targetQuantityKg,
+      'actualQuantityKg': actualQuantityKg,
+      'remainingFodderKg': remainingFodderKg,
+      'flowAssisted': flowAssisted,
     };
   }
 
@@ -34,6 +46,10 @@ class FeedingRecord {
       type: map['type'] as String? ?? 'Manual',
       status: map['status'] as String? ?? 'Completed',
       durationSeconds: map['durationSeconds'] as int? ?? 15,
+      targetQuantityKg: (map['targetQuantityKg'] as num?)?.toDouble() ?? 1.20,
+      actualQuantityKg: (map['actualQuantityKg'] as num?)?.toDouble() ?? 1.18,
+      remainingFodderKg: (map['remainingFodderKg'] as num?)?.toDouble() ?? 8.82,
+      flowAssisted: map['flowAssisted'] as bool? ?? false,
     );
   }
 }

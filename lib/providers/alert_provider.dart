@@ -1,20 +1,48 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/alert_model.dart';
 
 class AlertProvider with ChangeNotifier {
+  static const String _keyAlerts = 'fodder_alerts_list';
+
   List<AlertModel> _alerts = [];
+  AlertModel? _latestToastAlert;
   StreamSubscription<List<AlertModel>>? _sub;
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   List<AlertModel> get alerts => _alerts;
+  AlertModel? get latestToastAlert => _latestToastAlert;
   bool get isLoading => _isLoading;
 
   int get unreadCount => _alerts.where((a) => !a.read).length;
 
-  void initAlerts(String deviceId, bool isMockMode) {
-    _sub?.cancel();
+  AlertProvider() {
+    _loadFromPreferences();
+  }
 
+  void initAlerts([String? deviceId, bool? isMockMode]) {
+    _loadFromPreferences();
+  }
+
+  Future<void> _loadFromPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonStr = prefs.getString(_keyAlerts);
+      if (jsonStr != null && jsonStr.isNotEmpty) {
+        final List<dynamic> decoded = jsonDecode(jsonStr);
+        _alerts = decoded.map((m) => AlertModel.fromMap(m, m['id'] ?? '')).toList();
+      } else {
+        _initDefaultAlerts();
+      }
+    } catch (_) {
+      _initDefaultAlerts();
+    }
+    notifyListeners();
+  }
+
+  void _initDefaultAlerts() {
     final now = DateTime.now();
     _alerts = [
       AlertModel(
@@ -33,17 +61,15 @@ class AlertProvider with ChangeNotifier {
         timestamp: now.subtract(const Duration(hours: 2)),
         read: false,
       ),
-      AlertModel(
-        id: 'ALT_003',
-        title: 'Fodder Hopper Level Good',
-        message: 'Fodder hopper capacity is currently at 78%. System is ready.',
-        type: AlertType.info,
-        timestamp: now.subtract(const Duration(hours: 5)),
-        read: true,
-      ),
     ];
-    _isLoading = false;
-    notifyListeners();
+  }
+
+  Future<void> _saveToPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final maps = _alerts.map((a) => a.toMap()).toList();
+      await prefs.setString(_keyAlerts, jsonEncode(maps));
+    } catch (_) {}
   }
 
   void addFarmerNotification({
@@ -59,7 +85,15 @@ class AlertProvider with ChangeNotifier {
       timestamp: DateTime.now(),
       read: false,
     );
+
     _alerts.insert(0, newAlert);
+    _latestToastAlert = newAlert;
+    _saveToPreferences();
+    notifyListeners();
+  }
+
+  void clearToastAlert() {
+    _latestToastAlert = null;
     notifyListeners();
   }
 
@@ -67,17 +101,21 @@ class AlertProvider with ChangeNotifier {
     final index = _alerts.indexWhere((a) => a.id == alertId);
     if (index != -1) {
       _alerts[index] = _alerts[index].copyWith(read: true);
+      _saveToPreferences();
       notifyListeners();
     }
   }
 
   Future<void> markAllAsRead() async {
     _alerts = _alerts.map((a) => a.copyWith(read: true)).toList();
+    _saveToPreferences();
     notifyListeners();
   }
 
   Future<void> clearAll(String deviceId, bool isMockMode) async {
     _alerts.clear();
+    _latestToastAlert = null;
+    _saveToPreferences();
     notifyListeners();
   }
 

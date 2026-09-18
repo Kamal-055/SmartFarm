@@ -1,7 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/responsive.dart';
+import '../../providers/history_provider.dart';
 
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});
@@ -10,6 +12,11 @@ class AnalyticsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final padding = Responsive.horizontalPadding(context);
     final gridRatio = Responsive.sensorGridRatio(context);
+    final historyProvider = Provider.of<HistoryProvider>(context);
+
+    final todayFeedKg = historyProvider.todayDispensedKgSum;
+    final cyclesCount = historyProvider.todayCompletedCount;
+    final flowAssistedCount = historyProvider.todayFlowAssistedCount;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -37,7 +44,7 @@ class AnalyticsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 1. Farm Performance Metric Summary Cards (Responsive)
+                  // 1. Calculated Farm Performance Metric Summary Cards (Responsive)
                   GridView.count(
                     crossAxisCount: 2,
                     shrinkWrap: true,
@@ -46,10 +53,10 @@ class AnalyticsScreen extends StatelessWidget {
                     mainAxisSpacing: 10,
                     childAspectRatio: gridRatio,
                     children: [
-                      _buildMetricCard("Today's Feed", '3.40 kg', 'Total Dispensed', Icons.grass, AppColors.onlineGreen),
-                      _buildMetricCard('Feeding Cycles', '3', 'Today', Icons.loop, AppColors.primaryAccent),
-                      _buildMetricCard('Feed Flow Check', '1', 'Flow Assisted', Icons.shield, Colors.orangeAccent),
-                      _buildMetricCard('Successful Feedings', '3', '100% Success', Icons.check_circle, Colors.cyanAccent),
+                      _buildMetricCard("Today's Feed", '${todayFeedKg.toStringAsFixed(2)} kg', 'Total Dispensed', Icons.grass, AppColors.onlineGreen),
+                      _buildMetricCard('Feeding Cycles', '$cyclesCount', 'Completed Today', Icons.loop, AppColors.primaryAccent),
+                      _buildMetricCard('Feed Flow Check', '$flowAssistedCount', 'Flow Assisted', Icons.shield, Colors.orangeAccent),
+                      _buildMetricCard('Successful Feedings', '$cyclesCount', '100% Success', Icons.check_circle, Colors.cyanAccent),
                     ],
                   ),
                   const SizedBox(height: 18),
@@ -128,7 +135,7 @@ class AnalyticsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // 3. Hopper Level Drift Chart
+                  // 3. Storage Bin Level History Chart
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(

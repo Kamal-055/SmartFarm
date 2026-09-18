@@ -4,9 +4,11 @@ import '../core/constants/app_colors.dart';
 import '../core/constants/app_constants.dart';
 import '../providers/alert_provider.dart';
 import '../providers/device_provider.dart';
+import '../providers/fodder_inventory_provider.dart';
 import '../providers/history_provider.dart';
 import '../providers/schedule_provider.dart';
 import '../providers/settings_provider.dart';
+import '../providers/simulation_provider.dart';
 import 'alerts/alerts_screen.dart';
 import 'analytics/analytics_screen.dart';
 import 'dashboard/dashboard_screen.dart';
@@ -37,9 +39,23 @@ class _MainLayoutState extends State<MainLayout> {
     final isMock = settings.isMockMode;
 
     Provider.of<DeviceProvider>(context, listen: false).initDevice(deviceId, isMock);
-    Provider.of<ScheduleProvider>(context, listen: false).initSchedules(deviceId, isMock);
-    Provider.of<HistoryProvider>(context, listen: false).initHistory(deviceId, isMock);
-    Provider.of<AlertProvider>(context, listen: false).initAlerts(deviceId, isMock);
+    final sch = Provider.of<ScheduleProvider>(context, listen: false);
+    final hist = Provider.of<HistoryProvider>(context, listen: false);
+    final alert = Provider.of<AlertProvider>(context, listen: false);
+    final inv = Provider.of<FodderInventoryProvider>(context, listen: false);
+    final sim = Provider.of<SimulationProvider>(context, listen: false);
+
+    sch.initSchedules(deviceId, isMock);
+    hist.initHistory(deviceId, isMock);
+    alert.initAlerts(deviceId, isMock);
+
+    // Start central background scheduler tick
+    sim.startBackgroundScheduler(
+      scheduleProvider: sch,
+      inventoryProvider: inv,
+      historyProvider: hist,
+      alertProvider: alert,
+    );
   }
 
   final List<Widget> _pages = const [
@@ -54,6 +70,7 @@ class _MainLayoutState extends State<MainLayout> {
   Widget build(BuildContext context) {
     final alertProvider = Provider.of<AlertProvider>(context);
     final unreadCount = alertProvider.unreadCount;
+    final toastAlert = alertProvider.latestToastAlert;
 
     return Scaffold(
       extendBody: true,
@@ -141,12 +158,79 @@ class _MainLayoutState extends State<MainLayout> {
           const SizedBox(width: 4),
         ],
       ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
+      body: Stack(
+        children: [
+          IndexedStack(
+            index: _currentIndex,
+            children: _pages,
+          ),
+
+          // Floating WhatsApp-style In-App Notification Toast Banner
+          if (toastAlert != null)
+            Positioned(
+              top: 10,
+              left: 12,
+              right: 12,
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryDark,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: AppColors.primaryAccent, width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      )
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryAccent.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.notifications_active, color: AppColors.primaryAccent, size: 20),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              toastAlert.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                            Text(
+                              toastAlert.message,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 11, color: Colors.white70),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white54, size: 18),
+                        onPressed: () => alertProvider.clearToastAlert(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
 
-      // Master 5-Tab Floating Glass Navigation Bar (Home, Feeding, Insights, Alerts, Profile)
+      // Master 5-Tab Floating Glass Navigation Bar
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 66,

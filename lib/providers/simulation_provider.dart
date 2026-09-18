@@ -1,10 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/ai_prediction_model.dart';
+import '../models/alert_model.dart';
+import '../models/feeding_record.dart';
 import '../models/simulation_record.dart';
 import '../services/blockage_prediction_service.dart';
 import '../services/feed_prediction_service.dart';
 import '../services/simulation_data_service.dart';
+import 'alert_provider.dart';
+import 'fodder_inventory_provider.dart';
+import 'history_provider.dart';
+import 'schedule_provider.dart';
 
 class SystemActivityItem {
   final DateTime timestamp;
@@ -29,9 +35,7 @@ class SimulationProvider with ChangeNotifier {
   final List<CombinedSimulationPair> _dataset = SimulationDataService.pairedDataset;
   int _currentIndex = 0;
   Timer? _simulationTimer;
-  bool _isSimulating = true;
-  bool _isPaused = false;
-  final int _simulationIntervalSeconds = 3;
+  Timer? _scheduleCheckerTimer;
 
   // Telemetry state
   late CombinedSimulationPair _currentPair;
@@ -40,18 +44,22 @@ class SimulationProvider with ChangeNotifier {
 
   // Active feeding animation state
   bool _isFeedingActive = false;
+  String _feedingStatusText = 'Ready';
   double _dispenseProgress = 0.0;
   double _currentDispensedKg = 0.0;
+  double _currentTroughWeightKg = 0.20;
   Timer? _dispenseTimer;
+
+  // Background schedule tracking: map of "SCH_001_2026-09-17" -> bool
+  final Set<String> _executedScheduleKeys = {};
 
   // Activity Timeline log
   final List<SystemActivityItem> _activityLog = [];
 
   // Getters
-  bool get isSimulating => _isSimulating;
-  bool get isPaused => _isPaused;
   int get currentIndex => _currentIndex;
   int get totalRecords => _dataset.length;
+  bool get isPaused => false;
   CombinedSimulationPair get currentPair => _currentPair;
   FeedQuantityRecord get currentFeedRecord => _currentPair.feedRecord;
   BlockageRecord get currentBlockageRecord => _currentPair.blockageRecord;
@@ -59,44 +67,84 @@ class SimulationProvider with ChangeNotifier {
   BlockagePrediction get currentBlockagePrediction => _currentBlockagePrediction;
 
   bool get isFeedingActive => _isFeedingActive;
+  String get feedingStatusText => _feedingStatusText;
   double get dispenseProgress => _dispenseProgress;
   double get currentDispensedKg => _currentDispensedKg;
+  double get currentTroughWeightKg => _currentTroughWeightKg;
   List<SystemActivityItem> get activityLog => List.unmodifiable(_activityLog);
+
+  void toggleSimulationState() {}
+  void nextRecord() {
+    setRecordIndex((_currentIndex + 1) % _dataset.length);
+  }
 
   SimulationProvider() {
     _currentPair = _dataset[0];
     _evaluateCurrentPredictions();
-    _logActivity("System Initialized", "Simulated Live IoT Engine ready", Icons.power_settings_new, Colors.lightGreenAccent);
-    startSimulation();
+    _logActivity("System Online", "Smart Fodder Dispensing Engine ready", Icons.power_settings_new, Colors.lightGreenAccent);
+    _startTelemetryLoop();
   }
 
-  void startSimulation() {
-    _isSimulating = true;
-    _isPaused = false;
+  void _startTelemetryLoop() {
     _simulationTimer?.cancel();
-    _simulationTimer = Timer.periodic(Duration(seconds: _simulationIntervalSeconds), (_) {
-      if (!_isPaused && !_isFeedingActive) {
-        nextRecord();
+    _simulationTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!_isFeedingActive) {
+        _currentIndex = (_currentIndex + 1) % _dataset.length;
+        _currentPair = _dataset[_currentIndex];
+        _evaluateCurrentPredictions();
+        notifyListeners();
       }
     });
-    notifyListeners();
   }
 
-  void pauseSimulation() {
-    _isPaused = true;
-    notifyListeners();
+  void startBackgroundScheduler({
+    required ScheduleProvider scheduleProvider,
+    required FodderInventoryProvider inventoryProvider,
+    required HistoryProvider historyProvider,
+    required AlertProvider alertProvider,
+  }) {
+    _scheduleCheckerTimer?.cancel();
+    _scheduleCheckerTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      _checkAndExecuteSchedules(
+        scheduleProvider: scheduleProvider,
+        inventoryProvider: inventoryProvider,
+        historyProvider: historyProvider,
+        alertProvider: alertProvider,
+      );
+    });
   }
 
-  void resumeSimulation() {
-    _isPaused = false;
-    notifyListeners();
-  }
+  void _checkAndExecuteSchedules({
+    required ScheduleProvider scheduleProvider,
+    required FodderInventoryProvider inventoryProvider,
+    required HistoryProvider historyProvider,
+    required AlertProvider alertProvider,
+  }) {
+    if (_isFeedingActive) return;
 
-  void toggleSimulationState() {
-    if (_isPaused) {
-      resumeSimulation();
-    } else {
-      pauseSimulation();
+    final now = DateTime.now();
+    final todayStr = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+
+    for (final schedule in scheduleProvider.schedules) {
+      if (!schedule.enabled) continue;
+
+      if (now.hour == schedule.hour && now.minute == schedule.minute) {
+        final key = "${schedule.id}_$todayStr";
+        if (!_executedScheduleKeys.contains(key)) {
+          _executedScheduleKeys.add(key);
+
+          // Trigger automatic feeding workflow
+          executeFeedingCycle(
+            inventoryProvider: inventoryProvider,
+            historyProvider: historyProvider,
+            alertProvider: alertProvider,
+            manualTargetKg: schedule.targetQtyKg,
+            titleOverride: schedule.name,
+            isScheduled: true,
+          );
+          break;
+        }
+      }
     }
   }
 
@@ -105,27 +153,8 @@ class SimulationProvider with ChangeNotifier {
       _currentIndex = index;
       _currentPair = _dataset[_currentIndex];
       _evaluateCurrentPredictions();
-      _logActivity(
-        "Record #${_currentIndex + 1} Loaded",
-        "Hopper: ${_currentPair.feedRecord.hopperLevelCm}cm | Trough: ${_currentPair.feedRecord.troughWeightBeforeKg}kg",
-        Icons.data_usage,
-        Colors.blueAccent,
-      );
       notifyListeners();
     }
-  }
-
-  void nextRecord() {
-    _currentIndex = (_currentIndex + 1) % _dataset.length;
-    _currentPair = _dataset[_currentIndex];
-    _evaluateCurrentPredictions();
-    _logActivity(
-      "Telemetry Stream Update",
-      "Sensor values updated from dataset record #${_currentIndex + 1}",
-      Icons.sensors,
-      Colors.greenAccent,
-    );
-    notifyListeners();
   }
 
   void _evaluateCurrentPredictions() {
@@ -133,86 +162,152 @@ class SimulationProvider with ChangeNotifier {
     _currentBlockagePrediction = _blockageService.predictBlockage(_currentPair.blockageRecord);
   }
 
-  // Preset Demo Scenarios required by Section 20
+  // Scenarios for testing flow states
   void triggerDemoNormal() {
-    setRecordIndex(0); // Record 1 = Normal flow
-    _logActivity("DEMO 1 Triggered", "Scenario: Normal Flow dispensing", Icons.check_circle, Colors.green);
-    executeFeedingCycle();
+    setRecordIndex(0);
   }
 
   void triggerDemoModerateBlockage() {
-    setRecordIndex(1); // Record 2 = Moderate blockage risk
-    _logActivity("DEMO 2 Triggered", "Scenario: Moderate Blockage Risk (Vibration ON)", Icons.warning_amber, Colors.orange);
-    executeFeedingCycle();
+    setRecordIndex(1);
   }
 
   void triggerDemoSevereBlockage() {
-    setRecordIndex(2); // Record 3 = Severe blockage risk
-    _logActivity("DEMO 3 Triggered", "Scenario: Severe Blockage Risk (Vibration + Gate Adjust)", Icons.report_problem, Colors.redAccent);
-    executeFeedingCycle();
+    setRecordIndex(2);
   }
 
-  // Execute full automated feeding cycle
-  void executeFeedingCycle([double? manualTargetKg]) {
-    if (_isFeedingActive) return;
+  // Central feeding execution workflow
+  bool executeFeedingCycle({
+    required FodderInventoryProvider inventoryProvider,
+    required HistoryProvider historyProvider,
+    required AlertProvider alertProvider,
+    double? manualTargetKg,
+    String? titleOverride,
+    bool isScheduled = false,
+  }) {
+    if (_isFeedingActive) return false;
 
-    final targetQty = manualTargetKg ?? _currentFeedPrediction.predictedQuantityKg;
+    final targetQty = (manualTargetKg ?? _currentFeedPrediction.predictedQuantityKg).clamp(0.2, 5.0);
+
+    // STEP 1: Inventory Check
+    if (!inventoryProvider.canFeed(targetQty)) {
+      alertProvider.addFarmerNotification(
+        title: 'Feeding Could Not Start',
+        message: 'Not enough fodder available. Required: ${targetQty.toStringAsFixed(2)} kg, Available: ${inventoryProvider.availableFodderKg.toStringAsFixed(2)} kg.',
+        type: AlertType.critical,
+      );
+      _logActivity("Feeding Blocked", "Insufficient fodder in storage bin", Icons.warning_amber, Colors.redAccent);
+      return false;
+    }
+
     _isFeedingActive = true;
     _dispenseProgress = 0.0;
     _currentDispensedKg = 0.0;
+    _feedingStatusText = 'Preparing system...';
     notifyListeners();
 
-    _logActivity("Sensor Stream Read", "Hopper: ${_currentPair.feedRecord.hopperLevelCm}cm", Icons.sensors, Colors.cyan);
+    if (isScheduled) {
+      alertProvider.addFarmerNotification(
+        title: '${titleOverride ?? "Scheduled Feed"} Started',
+        message: 'Automatic cattle feeding started. Target quantity: ${targetQty.toStringAsFixed(2)} kg.',
+        type: AlertType.info,
+      );
+    }
 
-    // Step 1: AI Evaluation
+    _logActivity("Feeding Prepared", "Target: ${targetQty.toStringAsFixed(2)} kg (${isScheduled ? 'Scheduled' : 'Manual'})", Icons.play_circle_fill, Colors.greenAccent);
+
+    // Step 2: Flow & Vibration Check
     Future.delayed(const Duration(milliseconds: 600), () {
-      _logActivity("AI Feed Prediction", "Target Hay: ${targetQty.toStringAsFixed(2)}kg", Icons.psychology, Colors.purpleAccent);
+      if (_currentBlockagePrediction.vibratorActivated) {
+        _feedingStatusText = 'Flow assist active...';
+        alertProvider.addFarmerNotification(
+          title: 'Feed Flow Check',
+          message: 'Flow assist vibration pulse activated to ensure smooth fodder flow.',
+          type: AlertType.warning,
+        );
+      } else {
+        _feedingStatusText = 'Opening gate...';
+      }
+      notifyListeners();
 
-      // Step 2: Risk Check & Vibration
+      // Step 3: Dispense Loop
       Future.delayed(const Duration(milliseconds: 600), () {
-        if (_currentBlockagePrediction.vibratorActivated) {
-          _logActivity("Preventive Action", "Vibration Motor ON for 1.5s", Icons.vibration, Colors.orangeAccent);
-        } else {
-          _logActivity("Flow Check", "Flow status: NORMAL", Icons.done_all, Colors.greenAccent);
-        }
+        _dispenseTimer?.cancel();
+        int steps = 25;
+        int currentStep = 0;
+        final initialTroughWt = _currentTroughWeightKg;
 
-        // Step 3: Gate Opening & Dispense Loop
-        Future.delayed(const Duration(milliseconds: 600), () {
-          _logActivity("Gate Actuation", "Servo Gate opened to ${_currentBlockagePrediction.adjustedGateOpeningPercent}%", Icons.door_sliding, Colors.amber);
+        _dispenseTimer = Timer.periodic(const Duration(milliseconds: 160), (timer) {
+          currentStep++;
+          _dispenseProgress = (currentStep / steps).clamp(0.0, 1.0);
+          _currentDispensedKg = double.parse((targetQty * _dispenseProgress).toStringAsFixed(2));
+          _currentTroughWeightKg = double.parse((initialTroughWt + _currentDispensedKg).toStringAsFixed(2));
 
-          _dispenseTimer?.cancel();
-          int steps = 20;
-          int currentStep = 0;
-          _dispenseTimer = Timer.periodic(const Duration(milliseconds: 150), (timer) {
-            currentStep++;
-            _dispenseProgress = (currentStep / steps).clamp(0.0, 1.0);
-            _currentDispensedKg = double.parse((targetQty * _dispenseProgress).toStringAsFixed(2));
+          if (_dispenseProgress < 0.3) {
+            _feedingStatusText = 'Opening gate (60%)...';
+          } else if (_dispenseProgress < 0.8) {
+            _feedingStatusText = 'Dispensing fodder...';
+          } else if (_dispenseProgress < 1.0) {
+            _feedingStatusText = 'Closing gate...';
+          }
 
-            if (currentStep >= steps) {
-              timer.cancel();
-              _isFeedingActive = false;
-              _logActivity(
-                "Feeding Cycle Completed",
-                "Dispensed ${_currentDispensedKg.toStringAsFixed(2)}kg in ${_currentPair.blockageRecord.gateTimeSeconds}s",
-                Icons.task_alt,
-                Colors.lightGreenAccent,
-              );
-              notifyListeners();
-            } else {
-              notifyListeners();
-            }
-          });
+          if (currentStep >= steps) {
+            timer.cancel();
+
+            // STEP 4: Completion & Actual Deduction
+            final actualDispensed = (targetQty * 0.98).clamp(0.1, targetQty);
+            _currentDispensedKg = actualDispensed;
+            _feedingStatusText = 'Complete ✓';
+            _isFeedingActive = false;
+
+            // Deduct actual dispensed from central inventory
+            inventoryProvider.deductFodder(actualDispensed, alertProvider);
+
+            // Create History Record
+            historyProvider.addRecord(FeedingRecord(
+              id: 'REC_${DateTime.now().millisecondsSinceEpoch}',
+              title: titleOverride ?? (isScheduled ? 'Scheduled Feed' : 'Manual Feed'),
+              timestamp: DateTime.now(),
+              type: isScheduled ? 'Scheduled' : 'Manual',
+              status: 'Completed',
+              durationSeconds: _currentPair.blockageRecord.gateTimeSeconds.toInt(),
+              targetQuantityKg: targetQty,
+              actualQuantityKg: actualDispensed,
+              remainingFodderKg: inventoryProvider.availableFodderKg,
+              flowAssisted: _currentBlockagePrediction.vibratorActivated,
+            ));
+
+            // Create Notification
+            alertProvider.addFarmerNotification(
+              title: '${titleOverride ?? "Feeding"} Completed',
+              message: '${actualDispensed.toStringAsFixed(2)} kg dispensed successfully. ${inventoryProvider.availableFodderKg.toStringAsFixed(2)} kg remaining.',
+              type: AlertType.info,
+            );
+
+            _logActivity(
+              "Feeding Completed",
+              "Dispensed ${actualDispensed.toStringAsFixed(2)} kg to trough",
+              Icons.task_alt,
+              Colors.lightGreenAccent,
+            );
+
+            notifyListeners();
+          } else {
+            notifyListeners();
+          }
         });
       });
     });
+
+    return true;
   }
 
   void stopFeedingCycle() {
     _dispenseTimer?.cancel();
     _isFeedingActive = false;
+    _feedingStatusText = 'Stopped';
     _dispenseProgress = 0.0;
     _currentDispensedKg = 0.0;
-    _logActivity("Feeding Stopped", "Manual override triggered", Icons.stop_circle, Colors.red);
+    _logActivity("Feeding Cancelled", "Manual override triggered", Icons.stop_circle, Colors.redAccent);
     notifyListeners();
   }
 
@@ -232,6 +327,7 @@ class SimulationProvider with ChangeNotifier {
   @override
   void dispose() {
     _simulationTimer?.cancel();
+    _scheduleCheckerTimer?.cancel();
     _dispenseTimer?.cancel();
     super.dispose();
   }

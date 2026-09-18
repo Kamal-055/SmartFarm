@@ -1,75 +1,89 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/feeding_schedule.dart';
-import '../services/rtdb_service.dart';
-import '../core/utils/app_logger.dart';
 
 class ScheduleProvider with ChangeNotifier {
-  final RealtimeDatabaseService _rtdbService = RealtimeDatabaseService();
+  static const String _keyScheduleList = 'fodder_schedules_list';
 
   List<FeedingSchedule> _schedules = [];
-  StreamSubscription<List<FeedingSchedule>>? _sub;
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   List<FeedingSchedule> get schedules => _schedules;
   bool get isLoading => _isLoading;
 
-  void initSchedules(String deviceId, bool isMockMode) {
-    _sub?.cancel();
+  ScheduleProvider() {
+    _loadFromPreferences();
+  }
 
-    if (isMockMode) {
-      _schedules = [
-        FeedingSchedule(
-          id: 'SCH_001',
-          name: 'Morning Feeding',
-          time: '08:00 AM',
-          hour: 8,
-          minute: 0,
-          durationSeconds: 15,
-          enabled: true,
-        ),
-        FeedingSchedule(
-          id: 'SCH_002',
-          name: 'Afternoon Feeding',
-          time: '01:00 PM',
-          hour: 13,
-          minute: 0,
-          durationSeconds: 20,
-          enabled: true,
-        ),
-        FeedingSchedule(
-          id: 'SCH_003',
-          name: 'Evening Feeding',
-          time: '06:00 PM',
-          hour: 18,
-          minute: 0,
-          durationSeconds: 15,
-          enabled: true,
-        ),
-      ];
-      _isLoading = false;
-      notifyListeners();
-    } else {
-      _isLoading = true;
-      notifyListeners();
-      _sub = _rtdbService.streamSchedules(deviceId).listen((list) {
-        _schedules = list;
-        _isLoading = false;
-        notifyListeners();
-      }, onError: (e) {
-        AppLogger.e('ScheduleProvider', 'Error streaming schedules', e);
-        _isLoading = false;
-        notifyListeners();
-      });
+  void initSchedules([String? deviceId, bool? isMockMode]) {
+    _loadFromPreferences();
+  }
+
+  Future<void> _loadFromPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonStr = prefs.getString(_keyScheduleList);
+      if (jsonStr != null && jsonStr.isNotEmpty) {
+        final List<dynamic> decoded = jsonDecode(jsonStr);
+        _schedules = decoded.map((m) => FeedingSchedule.fromMap(m, m['id'] ?? '')).toList();
+      } else {
+        _initDefaultSchedules();
+      }
+    } catch (_) {
+      _initDefaultSchedules();
     }
+    notifyListeners();
+  }
+
+  void _initDefaultSchedules() {
+    _schedules = [
+      FeedingSchedule(
+        id: 'SCH_001',
+        name: 'Morning Feed',
+        time: '08:00 AM',
+        hour: 8,
+        minute: 0,
+        targetQtyKg: 1.20,
+        enabled: true,
+      ),
+      FeedingSchedule(
+        id: 'SCH_002',
+        name: 'Afternoon Feed',
+        time: '01:00 PM',
+        hour: 13,
+        minute: 0,
+        targetQtyKg: 0.80,
+        enabled: true,
+      ),
+      FeedingSchedule(
+        id: 'SCH_003',
+        name: 'Evening Feed',
+        time: '06:00 PM',
+        hour: 18,
+        minute: 0,
+        targetQtyKg: 1.40,
+        enabled: true,
+      ),
+    ];
+  }
+
+  Future<void> _saveToPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final maps = _schedules.map((s) => s.toMap()).toList();
+      await prefs.setString(_keyScheduleList, jsonEncode(maps));
+    } catch (_) {}
   }
 
   Future<void> addSchedule({
-    required String deviceId,
+    String? deviceId,
     required String name,
     required TimeOfDay timeOfDay,
-    required int durationSeconds,
-    required bool isMockMode,
+    int durationSeconds = 15,
+    bool isMockMode = true,
+    double targetQtyKg = 1.20,
   }) async {
     final id = 'SCH_${DateTime.now().millisecondsSinceEpoch}';
     final hourStr = timeOfDay.hourOfPeriod == 0 ? '12' : timeOfDay.hourOfPeriod.toString().padLeft(2, '0');
@@ -84,46 +98,48 @@ class ScheduleProvider with ChangeNotifier {
       hour: timeOfDay.hour,
       minute: timeOfDay.minute,
       durationSeconds: durationSeconds,
+      targetQtyKg: targetQtyKg,
       enabled: true,
     );
 
-    if (isMockMode) {
-      _schedules.add(schedule);
-      _schedules.sort((a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute));
-      notifyListeners();
-    } else {
-      await _rtdbService.saveSchedule(deviceId, schedule);
-    }
+    _schedules.add(schedule);
+    _schedules.sort((a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute));
+    await _saveToPreferences();
+    notifyListeners();
   }
 
-  Future<void> toggleSchedule({
-    required String deviceId,
-    required FeedingSchedule schedule,
-    required bool isMockMode,
-  }) async {
-    final updated = schedule.copyWith(enabled: !schedule.enabled);
+  Future<void> toggleSchedule([dynamic arg1, dynamic arg2, dynamic arg3]) async {
+    FeedingSchedule? target;
+    if (arg1 is FeedingSchedule) {
+      target = arg1;
+    } else if (arg2 is FeedingSchedule) {
+      target = arg2;
+    }
 
-    if (isMockMode) {
-      final index = _schedules.indexWhere((s) => s.id == schedule.id);
+    if (target != null) {
+      final index = _schedules.indexWhere((s) => s.id == target!.id);
       if (index != -1) {
-        _schedules[index] = updated;
+        _schedules[index] = target.copyWith(enabled: !target.enabled);
+        await _saveToPreferences();
         notifyListeners();
       }
-    } else {
-      await _rtdbService.saveSchedule(deviceId, updated);
     }
   }
 
-  Future<void> deleteSchedule({
-    required String deviceId,
-    required String scheduleId,
-    required bool isMockMode,
-  }) async {
-    if (isMockMode) {
-      _schedules.removeWhere((s) => s.id == scheduleId);
+  Future<void> deleteSchedule([dynamic arg1, dynamic arg2, dynamic arg3]) async {
+    String? idToRemove;
+    if (arg1 is String && !arg1.startsWith('DEV')) {
+      idToRemove = arg1;
+    } else if (arg2 is String) {
+      idToRemove = arg2;
+    } else if (arg1 is String) {
+      idToRemove = arg1;
+    }
+
+    if (idToRemove != null) {
+      _schedules.removeWhere((s) => s.id == idToRemove);
+      await _saveToPreferences();
       notifyListeners();
-    } else {
-      await _rtdbService.deleteSchedule(deviceId, scheduleId);
     }
   }
 
@@ -140,13 +156,6 @@ class ScheduleProvider with ChangeNotifier {
         return sch;
       }
     }
-    // Return first schedule for tomorrow if all passed today
     return enabledList.first;
-  }
-
-  @override
-  void dispose() {
-    _sub?.cancel();
-    super.dispose();
   }
 }

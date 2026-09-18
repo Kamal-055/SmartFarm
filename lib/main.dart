@@ -10,6 +10,7 @@ import 'providers/alert_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/device_provider.dart';
 import 'providers/farm_provider.dart';
+import 'providers/fodder_inventory_provider.dart';
 import 'providers/history_provider.dart';
 import 'providers/schedule_provider.dart';
 import 'providers/settings_provider.dart';
@@ -19,7 +20,7 @@ import 'screens/splash_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Try initializing Firebase gracefully (will throw if options missing, caught & logged)
+  // Try initializing Firebase gracefully
   try {
     await Firebase.initializeApp();
     AppLogger.i('MAIN', 'Firebase initialized successfully.');
@@ -41,6 +42,7 @@ class SmartFodderApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => FarmProvider()),
         ChangeNotifierProvider(create: (_) => DeviceProvider()),
+        ChangeNotifierProvider(create: (_) => FodderInventoryProvider()),
         ChangeNotifierProvider(create: (_) => ScheduleProvider()),
         ChangeNotifierProvider(create: (_) => HistoryProvider()),
         ChangeNotifierProvider(create: (_) => AlertProvider()),

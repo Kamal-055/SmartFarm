@@ -5,6 +5,7 @@ class FeedingSchedule {
   final int hour; // 0 - 23
   final int minute; // 0 - 59
   final int durationSeconds; // Gate open duration
+  final double targetQtyKg;
   final bool enabled;
 
   FeedingSchedule({
@@ -14,6 +15,7 @@ class FeedingSchedule {
     required this.hour,
     required this.minute,
     this.durationSeconds = 15,
+    this.targetQtyKg = 1.20,
     required this.enabled,
   });
 
@@ -25,6 +27,7 @@ class FeedingSchedule {
       'hour': hour,
       'minute': minute,
       'durationSeconds': durationSeconds,
+      'targetQtyKg': targetQtyKg,
       'enabled': enabled,
     };
   }
@@ -37,6 +40,7 @@ class FeedingSchedule {
       hour: map['hour'] as int? ?? 8,
       minute: map['minute'] as int? ?? 0,
       durationSeconds: map['durationSeconds'] as int? ?? 15,
+      targetQtyKg: (map['targetQtyKg'] as num?)?.toDouble() ?? 1.20,
       enabled: map['enabled'] as bool? ?? true,
     );
   }
@@ -47,6 +51,7 @@ class FeedingSchedule {
     int? hour,
     int? minute,
     int? durationSeconds,
+    double? targetQtyKg,
     bool? enabled,
   }) {
     return FeedingSchedule(
@@ -56,6 +61,7 @@ class FeedingSchedule {
       hour: hour ?? this.hour,
       minute: minute ?? this.minute,
       durationSeconds: durationSeconds ?? this.durationSeconds,
+      targetQtyKg: targetQtyKg ?? this.targetQtyKg,
       enabled: enabled ?? this.enabled,
     );
   }

@@ -16,42 +16,46 @@ class BlockageRiskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color riskColor;
+    Color bgLightColor;
     IconData riskIcon;
     String statusTitle;
 
     switch (blockagePrediction.riskLevel) {
       case BlockageRiskLevel.normal:
-        riskColor = AppColors.success;
-        riskIcon = Icons.check_circle_outline;
-        statusTitle = "NORMAL FLOW";
+        riskColor = AppColors.secondary;
+        bgLightColor = AppColors.secondaryLight;
+        riskIcon = Icons.check_circle_outline_rounded;
+        statusTitle = "NORMAL HAY FLOW";
         break;
       case BlockageRiskLevel.moderate:
         riskColor = AppColors.warning;
-        riskIcon = Icons.warning_amber;
-        statusTitle = "MODERATE BLOCKAGE RISK";
+        bgLightColor = AppColors.warningBackground;
+        riskIcon = Icons.warning_amber_rounded;
+        statusTitle = "MODERATE FLOW DELAY";
         break;
       case BlockageRiskLevel.severe:
         riskColor = AppColors.error;
-        riskIcon = Icons.report_problem;
-        statusTitle = "SEVERE BLOCKAGE RISK";
+        bgLightColor = AppColors.errorBackground;
+        riskIcon = Icons.report_problem_rounded;
+        statusTitle = "CLOG DETECTED";
         break;
     }
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.glassForestCard,
-        borderRadius: BorderRadius.circular(22),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: riskColor.withValues(alpha: 0.6),
+          color: riskColor.withValues(alpha: 0.4),
           width: 1.5,
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: riskColor.withValues(alpha: 0.15),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          )
+            color: AppColors.cardShadow,
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -59,16 +63,16 @@ class BlockageRiskCard extends StatelessWidget {
         children: [
           // 3-State Banner
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: riskColor.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(14),
+              color: bgLightColor,
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(color: riskColor.withValues(alpha: 0.5)),
             ),
             child: Row(
               children: [
-                Icon(riskIcon, color: riskColor, size: 24),
-                const SizedBox(width: 10),
+                Icon(riskIcon, color: riskColor, size: 26),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,11 +86,12 @@ class BlockageRiskCard extends StatelessWidget {
                           letterSpacing: 0.5,
                         ),
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         blockagePrediction.recommendedAction,
                         style: const TextStyle(
                           fontSize: 11,
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                     ],
@@ -95,14 +100,14 @@ class BlockageRiskCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
 
           const Text(
-            'FEED FLOW MONITORING',
+            'FEED FLOW SENSORS',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: AppColors.primaryAccent,
+              color: AppColors.textSecondary,
               letterSpacing: 0.8,
             ),
           ),
@@ -118,17 +123,17 @@ class BlockageRiskCard extends StatelessWidget {
                   blockageRecord.irFlowDetected,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
                 child: _buildCheckItem(
-                  'Hall Position',
+                  'Hall Sensor',
                   blockageRecord.hallSensorGateOpen ? 'Gate Open' : 'Gate Closed',
                   blockageRecord.hallSensorGateOpen,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -136,10 +141,10 @@ class BlockageRiskCard extends StatelessWidget {
                   'Vibration Motor',
                   blockagePrediction.vibratorActivated ? 'ACTIVE' : 'OFF',
                   !blockagePrediction.vibratorActivated,
-                  accentColor: blockagePrediction.vibratorActivated ? Colors.orangeAccent : Colors.grey,
+                  accentColor: blockagePrediction.vibratorActivated ? AppColors.warning : AppColors.secondary,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
                 child: _buildCheckItem(
                   'Prev. Blockages',
@@ -155,13 +160,13 @@ class BlockageRiskCard extends StatelessWidget {
   }
 
   Widget _buildCheckItem(String title, String value, bool isPositive, {Color? accentColor}) {
-    final statusColor = accentColor ?? (isPositive ? AppColors.onlineGreen : AppColors.error);
+    final statusColor = accentColor ?? (isPositive ? AppColors.secondary : AppColors.error);
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.25),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
@@ -182,13 +187,13 @@ class BlockageRiskCard extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.6)),
+                  style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
                 ),
                 Text(
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                 ),
               ],
             ),

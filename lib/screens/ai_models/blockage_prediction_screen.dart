@@ -16,169 +16,189 @@ class BlockagePredictionScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Feed Flow & Safety'),
+        title: const Text(
+          'Feed Flow & Safety',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
-      body: Stack(
-        children: [
-          // Background AI Aerial Farm Image with Dark Overlay
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/aerial_farm_bg.png',
-              fit: BoxFit.cover,
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              color: AppColors.primaryDark.withValues(alpha: 0.88),
-            ),
-          ),
-
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title Header Card
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.glassForestCard,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.primaryAccent.withValues(alpha: 0.4)),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 100),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: AppColors.cardShadow,
+                      blurRadius: 8,
+                      offset: Offset(0, 3),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.shield_rounded, color: AppColors.primary, size: 24),
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Automatic Flow Monitoring',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            'Monitors hay flow and triggers vibration assist if hay slows down',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+
+              // 3-State Risk Card
+              BlockageRiskCard(
+                blockagePrediction: blockagePred,
+                blockageRecord: blockageRecord,
+              ),
+              const SizedBox(height: 20),
+
+              // Scenario Selector Card
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: AppColors.cardShadow,
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'FLOW SCENARIO DEMO',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textSecondary,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    Row(
                       children: [
-                        const Row(
-                          children: [
-                            Icon(Icons.shield_outlined, color: AppColors.primaryAccent, size: 22),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'AUTOMATIC FLOW MONITORING',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primaryAccent,
-                                  letterSpacing: 0.6,
-                                ),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.secondaryLight,
+                              foregroundColor: AppColors.secondary,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                side: const BorderSide(color: AppColors.secondary),
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Monitors hay flow continuously and activates automatic flow assistance if hay movement slows.',
-                          style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.85)),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // 3-State Risk Card
-                  BlockageRiskCard(
-                    blockagePrediction: blockagePred,
-                    blockageRecord: blockageRecord,
-                  ),
-                  const SizedBox(height: 18),
-
-                  // Scenario Selector
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AppColors.glassForestCard,
-                      borderRadius: BorderRadius.circular(22),
-                      border: Border.all(color: AppColors.glassForestBorder),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'SIMULATION FLOW SCENARIO TEST',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryAccent,
-                            letterSpacing: 0.8,
+                            onPressed: () {
+                              simProvider.triggerDemoNormal();
+                            },
+                            child: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text('SMOOTH FLOW', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(width: 8),
 
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.onlineGreen.withValues(alpha: 0.2),
-                                  foregroundColor: AppColors.onlineGreen,
-                                  side: const BorderSide(color: AppColors.onlineGreen),
-                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                ),
-                                onPressed: () {
-                                  simProvider.triggerDemoNormal();
-                                },
-                                child: const FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text('SMOOTH FLOW', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-                                ),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.warningBackground,
+                              foregroundColor: AppColors.warning,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                side: const BorderSide(color: AppColors.warning),
                               ),
                             ),
-                            const SizedBox(width: 6),
+                            onPressed: () {
+                              simProvider.triggerDemoModerateBlockage();
+                            },
+                            child: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text('SLIGHT DELAY', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
 
-                            Expanded(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.orangeAccent.withValues(alpha: 0.2),
-                                  foregroundColor: Colors.orangeAccent,
-                                  side: const BorderSide(color: Colors.orangeAccent),
-                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                ),
-                                onPressed: () {
-                                  simProvider.triggerDemoModerateBlockage();
-                                },
-                                child: const FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text('SLIGHT DELAY', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-                                ),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.errorBackground,
+                              foregroundColor: AppColors.error,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                side: const BorderSide(color: AppColors.error),
                               ),
                             ),
-                            const SizedBox(width: 6),
-
-                            Expanded(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.redAccent.withValues(alpha: 0.2),
-                                  foregroundColor: Colors.redAccent,
-                                  side: const BorderSide(color: Colors.redAccent),
-                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                ),
-                                onPressed: () {
-                                  simProvider.triggerDemoSevereBlockage();
-                                },
-                                child: const FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text('CLOG ALERT', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-                                ),
-                              ),
+                            onPressed: () {
+                              simProvider.triggerDemoSevereBlockage();
+                            },
+                            child: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text('CLOG ALERT', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                             ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

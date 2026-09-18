@@ -39,30 +39,39 @@ class DashboardScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Good Morning $farmerName',
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on_outlined, color: AppColors.primaryMedium, size: 14),
-                          const SizedBox(width: 4),
-                          Text(
-                            farmName,
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Good Morning $farmerName',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary,
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(Icons.location_on_outlined, color: AppColors.primaryMedium, size: 14),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                farmName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 10),
 
                   // Farmer Profile Avatar
                   Container(
@@ -93,33 +102,34 @@ class DashboardScreen extends StatelessWidget {
                   ],
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 10,
-                          height: 10,
-                          decoration: const BoxDecoration(
-                            color: AppColors.onlineGreen,
-                            shape: BoxShape.circle,
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        color: AppColors.onlineGreen,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'System Online',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'System Online',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                            ),
-                            Text(
-                              'All systems working perfectly',
-                              style: TextStyle(fontSize: 10, color: AppColors.textMuted),
-                            ),
-                          ],
-                        ),
-                      ],
+                          Text(
+                            'All systems working perfectly',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 10, color: AppColors.textMuted),
+                          ),
+                        ],
+                      ),
                     ),
                     const Icon(Icons.notifications_none_rounded, color: AppColors.textSecondary, size: 20),
                   ],
@@ -146,7 +156,7 @@ class DashboardScreen extends StatelessWidget {
                       color: AppColors.primaryMedium,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: _buildQuickTile(
                       label: 'Feed Flow',
@@ -155,7 +165,7 @@ class DashboardScreen extends StatelessWidget {
                       color: AppColors.onlineGreen,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: _buildQuickTile(
                       label: 'Gate',
@@ -219,7 +229,7 @@ class DashboardScreen extends StatelessWidget {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -230,18 +240,21 @@ class DashboardScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 22),
-          const SizedBox(height: 6),
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textMuted),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            val,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: color),
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textMuted),
+          ),
+          const SizedBox(height: 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              val,
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color),
+            ),
           ),
         ],
       ),
@@ -254,4 +267,3 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 }
-

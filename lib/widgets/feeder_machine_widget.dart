@@ -22,6 +22,7 @@ class FeederMachineWidget extends StatelessWidget {
     final totalCapKg = inventoryProvider.totalCapacityKg;
     final fillRatio = (availableKg / totalCapKg).clamp(0.0, 1.0);
     final isLow = inventoryProvider.isLow || inventoryProvider.isCritical;
+    final isSmallScreen = MediaQuery.sizeOf(context).width < 360;
 
     return Container(
       width: double.infinity,
@@ -59,7 +60,7 @@ class FeederMachineWidget extends StatelessWidget {
             ),
 
             Padding(
-              padding: const EdgeInsets.all(18),
+              padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
               child: Column(
                 children: [
                   // Top Row: Hopper Silo Graphic with Floating Supply Card & Gauge
@@ -68,8 +69,8 @@ class FeederMachineWidget extends StatelessWidget {
                     children: [
                       // Left: Cattle Pasture Image Thumbnail & Hopper Silo Graphic
                       Container(
-                        width: 110,
-                        height: 140,
+                        width: isSmallScreen ? 90 : 105,
+                        height: 135,
                         decoration: BoxDecoration(
                           color: const Color(0xFFF0F5F1),
                           borderRadius: BorderRadius.circular(18),
@@ -81,16 +82,16 @@ class FeederMachineWidget extends StatelessWidget {
                             const Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('🐄 🌾', style: TextStyle(fontSize: 26)),
+                                Text('🐄 🌾', style: TextStyle(fontSize: 22)),
                                 SizedBox(height: 4),
-                                Icon(Icons.museum_outlined, color: AppColors.primaryMedium, size: 44),
+                                Icon(Icons.museum_outlined, color: AppColors.primaryMedium, size: 38),
                                 SizedBox(height: 2),
-                                Text('SMART SILO', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                                Text('SMART SILO', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
                               ],
                             ),
                             if (isFeeding)
                               Positioned(
-                                bottom: 10,
+                                bottom: 8,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
@@ -103,12 +104,12 @@ class FeederMachineWidget extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: isSmallScreen ? 8.0 : 12.0),
 
                       // Right: Floating Fodder Supply Badge & Vertical Gauge Bar
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.all(14),
+                          padding: EdgeInsets.all(isSmallScreen ? 10.0 : 12.0),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.95),
                             borderRadius: BorderRadius.circular(18),
@@ -124,76 +125,89 @@ class FeederMachineWidget extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: BoxDecoration(
-                                          color: isLow ? Colors.amber.shade700 : AppColors.onlineGreen,
-                                          shape: BoxShape.circle,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: BoxDecoration(
+                                            color: isLow ? Colors.amber.shade700 : AppColors.onlineGreen,
+                                            shape: BoxShape.circle,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      const Text(
-                                        'Fodder Supply',
-                                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                                    textBaseline: TextBaseline.alphabetic,
-                                    children: [
-                                      Text(
-                                        availableKg.toStringAsFixed(1),
-                                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.textPrimary),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      const Text(
-                                        'kg',
-                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                                      ),
-                                    ],
-                                  ),
-                                  Text(
-                                    'of ${totalCapKg.toInt()} kg capacity',
-                                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
-                                  ),
-                                  const SizedBox(height: 8),
-
-                                  if (isLow)
-                                    InkWell(
-                                      onTap: onRefillRequested,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: Colors.amber.shade100,
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(color: Colors.amber.shade600),
+                                        const SizedBox(width: 4),
+                                        const Expanded(
+                                          child: Text(
+                                            'Fodder Supply',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                                          ),
                                         ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(Icons.add_circle_outline, color: Colors.amber.shade900, size: 14),
-                                            const SizedBox(width: 4),
-                                            Text('REFILL', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amber.shade900)),
-                                          ],
-                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerLeft,
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                                        textBaseline: TextBaseline.alphabetic,
+                                        children: [
+                                          Text(
+                                            availableKg.toStringAsFixed(1),
+                                            style: TextStyle(fontSize: isSmallScreen ? 24 : 28, fontWeight: FontWeight.w900, color: AppColors.textPrimary),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          const Text(
+                                            'kg',
+                                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                ],
+                                    Text(
+                                      'of ${totalCapKg.toInt()} kg capacity',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                                    ),
+                                    const SizedBox(height: 6),
+
+                                    if (isLow)
+                                      InkWell(
+                                        onTap: onRefillRequested,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: Colors.amber.shade100,
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(color: Colors.amber.shade600),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.add_circle_outline, color: Colors.amber.shade900, size: 12),
+                                              const SizedBox(width: 3),
+                                              Text('REFILL', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.amber.shade900)),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
+                              const SizedBox(width: 6),
 
                               // Vertical Golden Wheat Gauge Indicator
                               Container(
-                                width: 14,
-                                height: 90,
+                                width: 12,
+                                height: 85,
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFEAEFEA),
                                   borderRadius: BorderRadius.circular(8),
@@ -221,12 +235,12 @@ class FeederMachineWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
                   // Bottom Banner: System Ready & Next Feeding Notice
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: AppColors.glassForestCard,
                       borderRadius: BorderRadius.circular(16),
@@ -242,21 +256,25 @@ class FeederMachineWidget extends StatelessWidget {
                           child: Icon(
                             isFeeding ? Icons.sync_rounded : Icons.check_circle_rounded,
                             color: AppColors.primaryAccent,
-                            size: 18,
+                            size: 16,
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 isFeeding ? 'FEEDING IN PROGRESS' : 'System Ready',
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
                               ),
                               Text(
                                 isFeeding ? simProvider.feedingStatusText : 'Next automatic feeding scheduled at 01:00 PM',
-                                style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.8)),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.8)),
                               ),
                             ],
                           ),
@@ -273,4 +291,3 @@ class FeederMachineWidget extends StatelessWidget {
     );
   }
 }
-

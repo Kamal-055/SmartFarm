@@ -30,7 +30,7 @@ class LiveSensorsScreen extends StatelessWidget {
           ),
           Positioned.fill(
             child: Container(
-              color: AppColors.background.withValues(alpha: 0.90),
+              color: AppColors.primaryDark.withValues(alpha: 0.88),
             ),
           ),
 

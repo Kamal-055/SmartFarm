@@ -26,7 +26,7 @@ class HistoryScreen extends StatelessWidget {
           ),
           Positioned.fill(
             child: Container(
-              color: AppColors.background.withValues(alpha: 0.92),
+              color: AppColors.primaryDark.withValues(alpha: 0.88),
             ),
           ),
 
